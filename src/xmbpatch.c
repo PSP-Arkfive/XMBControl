@@ -582,11 +582,11 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         
         // Add Custom App
         int ebootFound;
-        if(psp_model == PSP_GO) {
+        if (psp_model == PSP_GO) {
         	custom_app_path[0] = 'e';
         	custom_app_path[1] = 'f';
         	ebootFound = sceIoGetstat(custom_app_path, &stat);
-        	if(ebootFound < 0) {
+        	if (ebootFound < 0) {
         		custom_app_path[0] = 'm'; 
         		custom_app_path[1] = 's';
         		ebootFound = sceIoGetstat(custom_app_path, &stat);
@@ -596,14 +596,14 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         	ebootFound = sceIoGetstat(custom_app_path, &stat);
         }
 
-        if(ebootFound >= 0) {
+        if (ebootFound >= 0) {
             new_item4 = addCustomVshItem(84, "xmbmsgtop_custom_app", sysconf_custom_app_arg, (SceVshItem*)information_board_item);
             AddVshItem(a0, topitem, new_item4);
         }
 
         SceIoStat _150_file;
         int _1k_file = sceIoGetstat("ms0:/TM/DCARK/150/reboot150.prx", &_150_file);
-        if((psp_model == PSP_1000) && _1k_file >= 0 && !IS_VITA_ADR(ark_config)) {
+        if ((psp_model == PSP_1000) && _1k_file >= 0 && !IS_VITA_ADR((&ark_config))) {
             new_item5 = addCustomVshItem(84, "xmbmsgtop_150_reboot", sysconf_150_reboot_arg, item);
             AddVshItem(a0, topitem, new_item5);
         }
@@ -695,7 +695,7 @@ void AddSysconfContextItem(char *text, char *subtitle, char *regkey)
 }
 
 int skipSetting(int i){
-    if (IS_VITA_ADR((ark_config))) return (
+    if (IS_VITA_ADR((&ark_config))) return (
         i == USB_CHARGE ||
         i == DISABLE_GO_PAUSE ||
         i == OLD_GO_PLUGINS ||
