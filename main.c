@@ -580,6 +580,7 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         startup = 0;
 
         int cur_icon = 0;
+        SceIoStat stat;
 
         if (psp_model == PSP_11000){
             u32 value = 0;
@@ -596,10 +597,15 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         AddVshItem(a0, topitem, new_item2);
 
         // Add Custom Launcher
-        new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
-        AddVshItem(a0, topitem, new_item3);
+        char clpath[ARK_PATH_SIZE];
+        sce_paf_private_strcpy(clpath, ark_config->arkpath);
+        strcat(clpath, VBOOT_PBP);
+        if (sceIoGetstat(custom_app_path, &stat) >= 0){
+            new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
+            AddVshItem(a0, topitem, new_item3);
+        }
         
-        SceIoStat stat; 
+        // Add Custom App
         int ebootFound;
         if(psp_model == PSP_GO) {
         	custom_app_path[0] = 'e';
