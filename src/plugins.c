@@ -14,7 +14,7 @@
 
 List plugins;
 
-extern ARKConfig* ark_config;
+extern ARKConfig ark_config;
 
 static char* sample_plugin_path = "ULUS01234, ms0:/SEPLUGINS/example.prx";
 
@@ -64,7 +64,7 @@ void loadPlugins(){
     clear_list(&plugins, &list_cleaner);
 
     char path[ARK_PATH_SIZE];
-    strcpy(path, ark_config->arkpath);
+    strcpy(path, ark_config.arkpath);
     strcat(path, "PLUGINS.TXT");
     
 
@@ -106,7 +106,7 @@ void savePlugins(){
     }
 
     char path[ARK_PATH_SIZE];
-    strcpy(path, ark_config->arkpath);
+    strcpy(path, ark_config.arkpath);
     strcat(path, "PLUGINS.TXT");
 
     int fd[] = {

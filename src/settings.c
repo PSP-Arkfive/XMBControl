@@ -23,7 +23,7 @@ enum{
 };
 
 extern CFWConfig config;
-extern ARKConfig* ark_config;
+extern ARKConfig ark_config;
 
 List custom_config;
 
@@ -181,7 +181,7 @@ void loadSettings(){
     clear_list(&custom_config, &list_cleaner);
 
     char path[ARK_PATH_SIZE];
-    strcpy(path, ark_config->arkpath);
+    strcpy(path, ark_config.arkpath);
     strcat(path, ARK_SETTINGS);
     SceUID check = sceIoOpen(path, PSP_O_RDONLY, 0);
     if(check < 0) {
@@ -243,7 +243,7 @@ static void saveClockSetting(int output, char* category, int opt){
 void saveSettings(){
 
     char path[ARK_PATH_SIZE];
-    strcpy(path, ark_config->arkpath);
+    strcpy(path, ark_config.arkpath);
     strcat(path, ARK_SETTINGS);
 
     int fd = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);

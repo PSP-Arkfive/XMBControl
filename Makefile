@@ -1,5 +1,6 @@
 TARGET = xmbctrl
 OBJS = main.o \
+	src/xmbpatch.o \
 	src/list.o \
 	src/config.o \
 	src/settings.o \
