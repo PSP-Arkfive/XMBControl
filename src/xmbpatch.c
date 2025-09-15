@@ -319,7 +319,7 @@ void recreate_umd_keys(void) {
     kuKernelCall(generate_umd_keys, &args);
 
     // patch region check if not done already
-    SceModule2 mod; kuKernelFindModuleByName("vsh_module", &mod);
+    SceModule mod; kuKernelFindModuleByName("vsh_module", &mod);
     sctrlHookImportByNID(&mod, "sceVshBridge", 0x5C2983C2, (void*)1);
 }
 
@@ -1248,7 +1248,7 @@ void PatchSysconfPlugin(u32 text_addr, u32 text_size)
     ClearCaches();
 }
 
-int OnModuleStart(SceModule2 *mod)
+int OnModuleStart(SceModule *mod)
 {
     char *modname = mod->modname;
     u32 text_addr = mod->text_addr;
