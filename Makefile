@@ -1,7 +1,7 @@
 TARGET = xmbctrl
 
 PSPSDK = $(shell psp-config --pspsdk-path)
-ARKSDK ?= external
+ARKSDK ?= ../ark-dev-sdk
 
 OBJS = main.o \
 	src/xmbpatch.o \
