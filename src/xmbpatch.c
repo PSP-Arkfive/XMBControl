@@ -1248,21 +1248,20 @@ void PatchSysconfPlugin(u32 text_addr, u32 text_size)
     ClearCaches();
 }
 
-int OnModuleStart(SceModule *mod)
+void OnModuleStart(SceModule *mod)
 {
     char *modname = mod->modname;
     u32 text_addr = mod->text_addr;
     u32 text_size = mod->text_size;
 
-    if(strcmp(modname, "vsh_module") == 0)
+    if (strcmp(modname, "vsh_module") == 0)
         PatchVshMain(text_addr, text_size);
-    else if(strcmp(modname, "sceVshAuthPlugin_Module") == 0)
+    else if (strcmp(modname, "sceVshAuthPlugin_Module") == 0)
         PatchAuthPlugin(text_addr, text_size);
-    else if(strcmp(modname, "sysconf_plugin_module") == 0)
+    else if (strcmp(modname, "sysconf_plugin_module") == 0)
         PatchSysconfPlugin(text_addr, text_size);
 
-    if (previous) return previous(mod);
-    return 0;
+    if (previous) previous(mod);
 }
 
 void initXmbPatch(){
