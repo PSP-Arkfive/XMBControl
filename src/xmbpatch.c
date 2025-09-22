@@ -1248,7 +1248,7 @@ void PatchSysconfPlugin(u32 text_addr, u32 text_size)
     ClearCaches();
 }
 
-void OnModuleStart(SceModule *mod)
+int OnModuleStart(SceModule *mod)
 {
     char *modname = mod->modname;
     u32 text_addr = mod->text_addr;
@@ -1261,7 +1261,8 @@ void OnModuleStart(SceModule *mod)
     else if (strcmp(modname, "sysconf_plugin_module") == 0)
         PatchSysconfPlugin(text_addr, text_size);
 
-    if (previous) previous(mod);
+    if (previous) return previous(mod);
+    return 0;
 }
 
 void initXmbPatch(){
