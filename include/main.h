@@ -37,6 +37,7 @@ enum {
 typedef struct
 {
     int magic;
+    int usbdevice;
     int usbcharge;
     int clock_game;
     int clock_vsh;

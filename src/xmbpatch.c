@@ -55,6 +55,7 @@ char * strtrim(char * text);
 static char custom_app_path[] = "ms0:/PSP/APP/CUSTOM/EBOOT.PBP";
 
 enum{
+    USB_DEVICE,
     USB_CHARGE,
     CPU_CLOCK_GAME,
     CPU_CLOCK_VSH,
@@ -87,30 +88,41 @@ typedef struct
 
 GetItem GetItemes[] =
 {
-    { 2, 0, "USB Charge" },
-    { 3, 0, "CPU Clock in Game" },
-    { 4, 0, "CPU Clock in XMB" },
-    { 5, 0, "WPA2 Support" },
-    { 6, 0, "Autoboot Launcher" },
-    { 7, 0, "Use Extra Memory" },
-    { 8, 0, "Memory Stick Speedup" },
-    { 9, 0, "Inferno Cache" },
-    { 10, 0, "Disable PSP Go Pause" },
-    { 11, 0, "Old Plugins on ef0" },
-    { 12, 0, "Prevent hibernation deletion on PSP Go" },
-    { 13, 0, "Skip Sony logos" },
-    { 14, 0, "Hide PIC0 and PIC1" },
-    { 15, 0, "Hide MAC Address" },
-    { 16, 0, "Hide DLC" },
-    { 17, 0, "Turn off LEDs" },
-    { 18, 0, "Disable UMD Drive" },
-    { 19, 0, "Disable Analog Stick" },
-    { 20, 0, "UMD Region" },
-    { 21, 0, "VSH Region" },
-    { 22, 0, "QA Flags" },
+    { USB_DEVICE          +2, 0, "USB Device" },
+    { USB_CHARGE          +2, 0, "USB Charge" },
+    { CPU_CLOCK_GAME      +2, 0, "CPU Clock in Game" },
+    { CPU_CLOCK_VSH       +2, 0, "CPU Clock in XMB" },
+    { WPA2_SUPPORT        +2, 0, "WPA2 Support" },
+    { AUTOBOOT_LAUNCHER   +2, 0, "Autoboot Launcher" },
+    { USE_EXTRA_MEM       +2, 0, "Use Extra Memory" },
+    { MEM_STICK_SPEEDUP   +2, 0, "Memory Stick Speedup" },
+    { INFERNO_CACHE       +2, 0, "Inferno Cache" },
+    { DISABLE_GO_PAUSE    +2, 0, "Disable PSP Go Pause" },
+    { OLD_GO_PLUGINS      +2, 0, "Old Plugins on ef0" },
+    { NO_HIB_DELETE       +2, 0, "Prevent hibernation deletion on PSP Go" },
+    { SKIP_LOGOS          +2, 0, "Skip Sony logos" },
+    { HIDE_PICS           +2, 0, "Hide PIC0 and PIC1" },
+    { HIDE_MAC            +2, 0, "Hide MAC Address" },
+    { HIDE_DLC            +2, 0, "Hide DLC" },
+    { DISABLE_LED         +2, 0, "Turn off LEDs" },
+    { DISABLE_UMD         +2, 0, "Disable UMD Drive" },
+    { DISABLE_ANALOG      +2, 0, "Disable Analog Stick" },
+    { UMD_REGION          +2, 0, "UMD Region" },
+    { VSH_REGION          +2, 0, "VSH Region" },
+    { QA_FLAGS            +2, 0, "QA Flags" },
 };
 
 #define PLUGINS_CONTEXT 1
+
+char* ark_usbdev_settings[] = {
+    "Memory Stick",
+    "Flash 0",
+    "Flash 1",
+    "Flash 2",
+    "Flash 3",
+    "UMD",
+    "Internal Storage",
+};
 
 char* ark_clock_settings[] = {
     "Auto",
@@ -133,17 +145,17 @@ char* ark_hidepics_settings[] = {
     "PIC1"
 };
 
-char* ark_settings_boolean[] = {
+char* ark_boolean_settings[] = {
     "Disabled",
     "Enabled"
 };
 
-char* ark_settings_boolean2[] = {
+char* ark_boolean_settings2[] = {
     "Auto",
     "Forced"
 };
 
-char* ark_settings_infernocache[] = {
+char* ark_infernocache_settings[] = {
     "Disabled",
     "LRU",
     "RR"
@@ -155,14 +167,14 @@ char* ark_plugins_options[] = {
     "Remove",
 };
 
-char* ark_umdregion_options[] = {
+char* ark_umdregion_settings[] = {
     "Default",
     "America",
     "Europe",
     "Japan",
 };
 
-char* ark_vshregion_options[] = {
+char* ark_vshregion_settings[] = {
     "Default", "Japan", "America", "Europe", "Korea",
     "United Kingdom", "Latin America", "Australia", "Hong Kong",
     "Taiwan", "Russia", "China", "Debug I", "Debug II"
@@ -174,27 +186,28 @@ struct {
 } item_opts[] = {
     {0, NULL}, // None
     {3, ark_plugins_options}, // Plugins
-    {2, ark_settings_boolean}, // USB Charge
+    {NELEMS(ark_usbdev_settings)-1, ark_usbdev_settings}, // USB Device
+    {2, ark_boolean_settings}, // USB Charge
     {4, ark_clock_settings}, // Clock Game
     {4, ark_clock_settings}, // Clock VSH
-    {2, ark_settings_boolean}, // WPA2 ( Thanks again @Moment )
-    {2, ark_settings_boolean}, // Autoboot Launcher
-    {2, ark_settings_boolean2}, // Extra RAM
-    {2, ark_settings_boolean}, // MS Speedup
-    {3, ark_settings_infernocache}, // Inferno Cache
-    {2, ark_settings_boolean2}, // Disable Go Pause
-    {2, ark_settings_boolean}, // Old Plugins on ef0
-    {2, ark_settings_boolean}, // Prevent hib delete
+    {2, ark_boolean_settings}, // WPA2 ( Thanks again @Moment )
+    {2, ark_boolean_settings}, // Autoboot Launcher
+    {2, ark_boolean_settings2}, // Extra RAM
+    {2, ark_boolean_settings}, // MS Speedup
+    {3, ark_infernocache_settings}, // Inferno Cache
+    {2, ark_boolean_settings2}, // Disable Go Pause
+    {2, ark_boolean_settings}, // Old Plugins on ef0
+    {2, ark_boolean_settings}, // Prevent hib delete
     {4, ark_skiplogos_settings}, // Skip Sony logos
     {4, ark_hidepics_settings}, // Hide PIC0 and PIC1
-    {2, ark_settings_boolean}, // Hide MAC
-    {2, ark_settings_boolean}, // Hide DLC
-    {2, ark_settings_boolean}, // Turn off LEDs
-    {2, ark_settings_boolean}, // Disable UMD Drive
-    {2, ark_settings_boolean}, // Disable Analog Stick 
-    {NELEMS(ark_umdregion_options), ark_umdregion_options}, // UMD Region
-    {NELEMS(ark_vshregion_options), ark_vshregion_options}, // VSH Region
-    {2, ark_settings_boolean}, // QA Flags
+    {2, ark_boolean_settings}, // Hide MAC
+    {2, ark_boolean_settings}, // Hide DLC
+    {2, ark_boolean_settings}, // Turn off LEDs
+    {2, ark_boolean_settings}, // Disable UMD Drive
+    {2, ark_boolean_settings}, // Disable Analog Stick 
+    {NELEMS(ark_umdregion_settings), ark_umdregion_settings}, // UMD Region
+    {NELEMS(ark_vshregion_settings), ark_vshregion_settings}, // VSH Region
+    {2, ark_boolean_settings}, // QA Flags
 };
 
 #define N_ITEMS (sizeof(GetItemes) / sizeof(GetItem))
@@ -719,7 +732,8 @@ void AddSysconfContextItem(char *text, char *subtitle, char *regkey)
 }
 
 int skipSetting(int i){
-    if (IS_VITA_ADR((&ark_config))) return (
+    if (IS_VITA((&ark_config))) return (
+        i == USB_DEVICE ||
         i == USB_CHARGE ||
         i == DISABLE_GO_PAUSE ||
         i == OLD_GO_PLUGINS ||
@@ -904,6 +918,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
         {
             int configs[] =
             {
+                config.usbdevice,
                 config.usbcharge,        
                 config.clock_game,        
                 config.clock_vsh, 
@@ -964,6 +979,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
         {
             static int *configs[] =
             {
+                &config.usbdevice,
                 &config.usbcharge,
                 &config.clock_game,
                 &config.clock_vsh,
@@ -995,6 +1011,10 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     *configs[i] = GetItemes[i].negative ? !(*value) : *value;
                     saveSettings();
                     if (i == UMD_REGION && config.umdregion) recreate_umd_keys();
+                    else if (i == 0){
+                        se_config.usbdevice = config.usbdevice;
+                        sctrlSESetConfig(&se_config);
+                    }
                     return 0;
                 }
             }
