@@ -39,6 +39,7 @@
 #include "list.h"
 #include "settings.h"
 #include "plugins.h"
+#include "battery.h"
 
 
 ARKConfig ark_config;
@@ -50,6 +51,7 @@ CFWConfig config;
 int psp_model;
 SEConfig se_config;
 int codecs_active = 0;
+int battery_type = -1;
 
 char * strtrim(char * text);
 
@@ -89,6 +91,7 @@ enum{
     UMD_REGION,
     VSH_REGION,
     CONFIRM_BUTTON,
+    BATTERY_CONVERT,
     QA_FLAGS,
     RESET_SETTINGS,
 };
@@ -128,32 +131,33 @@ GetItem GetItemes[] =
     { UMD_REGION          +PLUGINS_CONTEXT+1, 0, "UMD Region" },
     { VSH_REGION          +PLUGINS_CONTEXT+1, 0, "VSH Region" },
     { CONFIRM_BUTTON      +PLUGINS_CONTEXT+1, 0, "Confirm Button" },
+    { BATTERY_CONVERT     +PLUGINS_CONTEXT+1, 0, "Battery Convert" },
     { QA_FLAGS            +PLUGINS_CONTEXT+1, 0, "QA Flags" },
     { RESET_SETTINGS      +PLUGINS_CONTEXT+1, 0, "Reset Settings" },
 };
 
-char* ark_boolean_settings[] = {
+char* boolean_settings[] = {
     "Disabled",
     "Enabled"
 };
 
-char* ark_boolean_settings2[] = {
+char* boolean_settings2[] = {
     "Auto",
     "Forced"
 };
 
-char* ark_boolean_settings3[] = {
+char* boolean_settings3[] = {
     "Off",
     "On",
     "Auto",
 };
 
-char* ark_boolean_settings4[] = {
+char* boolean_settings4[] = {
     "Cancel",
     "Confirm",
 };
 
-char* ark_usbdev_settings[] = {
+char* usbdev_settings[] = {
     "Memory Stick",
     "Flash 0",
     "Flash 1",
@@ -163,57 +167,64 @@ char* ark_usbdev_settings[] = {
     "Internal Storage",
 };
 
-char* ark_clock_settings[] = {
+char* clock_settings[] = {
     "Auto",
     "OverClock",
     "Balanced",
     "PowerSave"
 };
 
-char* ark_skiplogos_settings[] = {
+char* skiplogos_settings[] = {
     "Disabled",
     "Enabled",
     "GameBoot",
     "ColdBoot"
 };
 
-char* ark_hidepics_settings[] = {
+char* hidepics_settings[] = {
     "Disabled",
     "Enabled",
     "PIC0",
     "PIC1"
 };
 
-char* ark_infernocache_settings[] = {
+char* infernocache_settings[] = {
     "Disabled",
     "LRU",
     "RR"
 };
 
-char* ark_plugins_options[] = {
+char* plugins_options[] = {
     "Disabled",
     "Enabled",
     "Remove",
 };
 
-char* ark_umdregion_settings[] = {
+char* umdregion_settings[] = {
     "Default",
     "America",
     "Europe",
     "Japan",
 };
 
-char* ark_vshregion_settings[] = {
+char* vshregion_settings[] = {
     "Default", "Japan", "America", "Europe", "Korea",
     "United Kingdom", "Latin America", "Australia", "Hong Kong",
     "Taiwan", "Russia", "China", "Debug I", "Debug II"
 };
 
-char* ark_confirmbutton_settings[] = { "O", "X" };
+char* confirmbutton_settings[] = {
+    "O", "X"
+};
 
 char* classic_plugins_opts[] = {
     "No Cleanup",
     "With Cleanup",
+};
+
+char* convert_battery_opts[] = {
+    "Normal",
+    "Pandora",
 };
 
 #define ITEM_OPT(i) { NELEMS(i), i }
@@ -223,33 +234,34 @@ struct {
 } item_opts[] = {
     {0, NULL}, // None
     ITEM_OPT(classic_plugins_opts), // Import Plugins
-    ITEM_OPT(ark_plugins_options), // Plugins
-    ITEM_OPT(ark_boolean_settings4), // Activate Codecs
-    {NELEMS(ark_usbdev_settings)-1, ark_usbdev_settings}, // USB Device
-    ITEM_OPT(ark_boolean_settings3), // USB Read-Only
-    ITEM_OPT(ark_boolean_settings), // USB Charge
-    ITEM_OPT(ark_clock_settings), // Clock Game
-    ITEM_OPT(ark_clock_settings), // Clock VSH
-    ITEM_OPT(ark_boolean_settings), // WPA2 ( Thanks again @Moment )
-    ITEM_OPT(ark_boolean_settings), // Autoboot Launcher
-    ITEM_OPT(ark_boolean_settings2), // Extra RAM
-    ITEM_OPT(ark_boolean_settings), // MS Speedup
-    ITEM_OPT(ark_infernocache_settings), // Inferno Cache
-    ITEM_OPT(ark_boolean_settings2), // Disable Go Pause
-    ITEM_OPT(ark_boolean_settings), // Old Plugins on ef0
-    ITEM_OPT(ark_boolean_settings), // Prevent hib delete
-    ITEM_OPT(ark_skiplogos_settings), // Skip Sony logos
-    ITEM_OPT(ark_hidepics_settings), // Hide PIC0 and PIC1
-    ITEM_OPT(ark_boolean_settings), // Hide MAC
-    ITEM_OPT(ark_boolean_settings), // Hide DLC
-    ITEM_OPT(ark_boolean_settings), // Turn off LEDs
-    ITEM_OPT(ark_boolean_settings), // Disable UMD Drive
-    ITEM_OPT(ark_boolean_settings), // Disable Analog Stick 
-    ITEM_OPT(ark_umdregion_settings), // UMD Region
-    ITEM_OPT(ark_vshregion_settings), // VSH Region
-    ITEM_OPT(ark_confirmbutton_settings), // Confirmation Button
-    ITEM_OPT(ark_boolean_settings), // QA Flags
-    ITEM_OPT(ark_boolean_settings4), // Reset Settings
+    ITEM_OPT(plugins_options), // Plugins
+    ITEM_OPT(boolean_settings4), // Activate Codecs
+    {NELEMS(usbdev_settings)-1, usbdev_settings}, // USB Device
+    ITEM_OPT(boolean_settings3), // USB Read-Only
+    ITEM_OPT(boolean_settings), // USB Charge
+    ITEM_OPT(clock_settings), // Clock Game
+    ITEM_OPT(clock_settings), // Clock VSH
+    ITEM_OPT(boolean_settings), // WPA2 ( Thanks again @Moment )
+    ITEM_OPT(boolean_settings), // Autoboot Launcher
+    ITEM_OPT(boolean_settings2), // Extra RAM
+    ITEM_OPT(boolean_settings), // MS Speedup
+    ITEM_OPT(infernocache_settings), // Inferno Cache
+    ITEM_OPT(boolean_settings2), // Disable Go Pause
+    ITEM_OPT(boolean_settings), // Old Plugins on ef0
+    ITEM_OPT(boolean_settings), // Prevent hib delete
+    ITEM_OPT(skiplogos_settings), // Skip Sony logos
+    ITEM_OPT(hidepics_settings), // Hide PIC0 and PIC1
+    ITEM_OPT(boolean_settings), // Hide MAC
+    ITEM_OPT(boolean_settings), // Hide DLC
+    ITEM_OPT(boolean_settings), // Turn off LEDs
+    ITEM_OPT(boolean_settings), // Disable UMD Drive
+    ITEM_OPT(boolean_settings), // Disable Analog Stick 
+    ITEM_OPT(umdregion_settings), // UMD Region
+    ITEM_OPT(vshregion_settings), // VSH Region
+    ITEM_OPT(confirmbutton_settings), // Confirmation Button
+    ITEM_OPT(convert_battery_opts), // Convert Battery
+    ITEM_OPT(boolean_settings), // QA Flags
+    ITEM_OPT(boolean_settings4), // Reset Settings
 };
 
 typedef struct {
@@ -944,6 +956,7 @@ void AddSysconfContextItem(char *text, char *subtitle, char *regkey)
 
 int skipSetting(int i){
     if (i == ACTIVATE_CODECS && codecs_active) return 1;
+    if (i == BATTERY_CONVERT && battery_type < 0) return 1;
     if (IS_VITA((&ark_config))) return (
         i == USB_DEVICE ||
         i == USB_READONLY ||
@@ -989,6 +1002,7 @@ void OnInitMenuPspConfigPatched()
         if(((u32 *)sysconf_option)[2] == 0)
         {
             codecs_active = codecs_activated();
+            battery_type = battery_init();
             loadSettings();
             int i;
             for(i = 0; i < NELEMS(GetItemes); i++)
@@ -1076,10 +1090,6 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
             }
         }
         else if (is_cfw_config == 2){
-            if (sce_paf_private_strcmp(name, "Import Classic Plugins") == 0){
-                utf8_to_unicode((wchar_t *)user_buffer, name);
-        		return (wchar_t *)user_buffer;
-            }
             if (sce_paf_private_strncmp(name, "plugin_", 7) == 0){
                 u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
@@ -1168,6 +1178,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 config.umdregion,
                 config.vshregion,
                 config.confirmbtn,
+                config.convert_battery,
                 config.qaflags,       
                 config.reset_settings,     
             };
@@ -1238,6 +1249,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 &config.umdregion,
                 &config.vshregion,
                 &config.confirmbtn,
+                &config.convert_battery,
                 &config.qaflags,
                 &config.reset_settings,
             };
@@ -1248,6 +1260,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 {
                     *configs[i] = GetItemes[i].negative ? !(*value) : *value;
                     saveSettings();
+                    
                     if (i == UMD_REGION && config.umdregion){
                         recreate_umd_keys();
                     }
@@ -1265,11 +1278,27 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                         if (config.activate_codecs && activate_codecs())
                             sctrlKernelExitVSH(NULL);
                     }
+                    else if (i == BATTERY_CONVERT){
+                        battery_convert(config.convert_battery);
+                    }
                     else if (i == RESET_SETTINGS){
                         if (config.reset_settings){
                             reset_ark_settings();
                             sctrlKernelExitVSH(NULL);
                         }
+                    }
+                    else if (
+                            i == WPA2_SUPPORT ||
+                            i == VSH_REGION   ||
+                            i == SKIP_LOGOS   ||
+                            i == HIDE_PICS    ||
+                            i == HIDE_MAC     ||
+                            i == HIDE_DLC     ||
+                            i == DISABLE_LED  ||
+                            i == DISABLE_UMD  ||
+                            i == QA_FLAGS     
+                        ){
+                        sctrlKernelExitVSH(NULL);
                     }
                     return 0;
                 }
