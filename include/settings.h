@@ -21,13 +21,14 @@ enum{
 
 #define FIX_BOOLEAN(c) {c = (c)?1:0;}
 
+void loadSettings();
+
+void saveSettings();
+
 int isRunlevelEnabled(char* line);
 
 int runlevelConvert(char* runlevel, char* enable);
 
 void ProcessConfigFile(char* path, int (process_line)(char*, char*, char*), void (*process_custom)(char*));
-
-void loadSettings();
-void saveSettings();
 
 #endif

@@ -1,36 +1,30 @@
-TARGET = xmbctrl
-
 PSPSDK = $(shell psp-config --pspsdk-path)
 ARKSDK ?= ../ark-dev-sdk
 
-OBJS = main.o \
+
+TARGET = xmbctrl
+OBJS = main.o stub.o \
 	src/xmbpatch.o \
 	src/list.o \
-	src/config.o \
 	src/settings.o \
+	src/config.o \
 	src/plugins.o \
-	src/utils.o \
+	src/utils.o
 
-IMPORTS = imports.o
-
-INCDIR = include $(ARKSDK)/include
-CFLAGS = -std=c99 -Os -G0 -Wall -fno-pic
-
-PSP_FW_VERSION = 660
-
-OBJS += $(IMPORTS)
-all: $(TARGET).prx
+CFLAGS = -std=c99 -O2 -Os -G0 -Wall -fshort-wchar -fno-pic -mno-check-zero-division
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
 BUILD_PRX = 1
 PRX_EXPORTS = exports.exp
 
-USE_KERNEL_LIBS = 0
-USE_KERNEL_LIBC = 0
-
+INCDIR = include $(ARKSDK)/include
 LIBDIR = $(ARKSDK)/libs
-LDFLAGS =  -nostartfiles
+
+USE_PSPSDK_LIBS = 1
+USE_PSPSDK_LIBC = 1
+
 LIBS = -lpspsystemctrl_user -lpspkubridge -lpspvshctrl -lpspreg -lpspsysc_user
+LDFLAGS = -nostartfiles
 
 include $(PSPSDK)/lib/build.mak

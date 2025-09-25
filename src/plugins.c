@@ -1,9 +1,10 @@
-#include <string.h>
-#include <strings.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <strings.h>
 #include <pspsdk.h>
+#include <pspkernel.h>
 
 #include <ark.h>
 
@@ -38,10 +39,10 @@ static void processCustomLine(char* line){
 
 static int processPlugin(char* runlevel, char* path, char* enabled){
     int n = plugins.count;
-    char* name = malloc(32);
+    char* name = malloc(20);
     sprintf(name, "plugin_%d", n);
 
-    char* surname = malloc(32);
+    char* surname = malloc(20);
     sprintf(surname, "plugins%d", n);
 
     int path_len = strlen(runlevel) + strlen(path) + 10;

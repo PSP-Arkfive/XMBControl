@@ -22,8 +22,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#include <pspsdk.h>
-
 #define sysconf_console_id 4
 #define sysconf_console_action 2
 #define sysconf_console_action_arg 2

@@ -1,5 +1,28 @@
-#include <stddef.h>
+/*
+    6.39 TN-A, XmbControl
+    Copyright (C) 2011, Total_Noob
+    Copyright (C) 2011, Frostegater
+    Copyright (C) 2011, codestation
+
+    main.c: XmbControl main code
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <psputility_sysparam.h>
@@ -7,9 +30,9 @@
 #include <ark.h>
 #include <cfwmacros.h>
 #include <kubridge.h>
+#include <vshctrl.h>
 #include <systemctrl.h>
 #include <systemctrl_se.h>
-#include <vshctrl.h>
 
 #include "main.h"
 #include "utils.h"
@@ -17,7 +40,17 @@
 #include "settings.h"
 #include "plugins.h"
 
+
+ARKConfig ark_config;
 extern List plugins;
+
+STMOD_HANDLER previous = NULL;
+CFWConfig config;
+
+int psp_model;
+SEConfig se_config;
+
+char * strtrim(char * text);
 
 static char custom_app_path[] = "ms0:/PSP/APP/CUSTOM/EBOOT.PBP";
 
@@ -204,13 +237,6 @@ int context_mode = 0;
 
 char user_buffer[LINE_BUFFER_SIZE];
 
-STMOD_HANDLER previous = NULL;
-
-extern int psp_model;
-extern ARKConfig ark_config;
-extern CFWConfig config;
-extern SEConfig se_config;
-
 int startup = 1;
 
 SceContextItem *context;
@@ -291,9 +317,10 @@ void exec_150_reboot(void) {
         pspSdkSetK1(k1);
         return;
     }
-    sceKernelStartModule(mod, 0, NULL, NULL, NULL);
+    int res = sceKernelStartModule(mod, 0, NULL, NULL, NULL);
     pspSdkSetK1(k1);
-    sctrlKernelExitVSH(NULL);
+    if (res >= 0) sctrlKernelExitVSH(NULL);
+    else sceKernelUnloadModule(mod);
 }
 
 void exec_custom_app(char *path) {
@@ -366,7 +393,7 @@ SceOff findPkgOffset(const char* filename, unsigned* size, const char* pkgpath){
     return 0;
 }
 
-static void findAllTranslatableStrings(){
+void findAllTranslatableStrings(){
     sce_paf_private_memset(language_strings, 0, sizeof(language_strings));
     n_translated = 0;
 
@@ -555,7 +582,6 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         startup = 0;
 
         int cur_icon = 0;
-        SceIoStat stat;
 
         if (psp_model == PSP_11000){
             u32 value = 0;
@@ -572,21 +598,16 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         AddVshItem(a0, topitem, new_item2);
 
         // Add Custom Launcher
-        char clpath[ARK_PATH_SIZE];
-        sce_paf_private_strcpy(clpath, ark_config.arkpath);
-        strcat(clpath, VBOOT_PBP);
-        if (sceIoGetstat(custom_app_path, &stat) >= 0){
-            new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
-            AddVshItem(a0, topitem, new_item3);
-        }
+        new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
+        AddVshItem(a0, topitem, new_item3);
         
-        // Add Custom App
+        SceIoStat stat; 
         int ebootFound;
-        if (psp_model == PSP_GO) {
+        if(psp_model == PSP_GO) {
         	custom_app_path[0] = 'e';
         	custom_app_path[1] = 'f';
         	ebootFound = sceIoGetstat(custom_app_path, &stat);
-        	if (ebootFound < 0) {
+        	if(ebootFound < 0) {
         		custom_app_path[0] = 'm'; 
         		custom_app_path[1] = 's';
         		ebootFound = sceIoGetstat(custom_app_path, &stat);
@@ -596,14 +617,14 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         	ebootFound = sceIoGetstat(custom_app_path, &stat);
         }
 
-        if (ebootFound >= 0) {
+        if(ebootFound >= 0) {
             new_item4 = addCustomVshItem(84, "xmbmsgtop_custom_app", sysconf_custom_app_arg, (SceVshItem*)information_board_item);
             AddVshItem(a0, topitem, new_item4);
         }
 
         SceIoStat _150_file;
         int _1k_file = sceIoGetstat("ms0:/TM/DCARK/150/reboot150.prx", &_150_file);
-        if ((psp_model == PSP_1000) && _1k_file >= 0 && !IS_VITA_ADR((&ark_config))) {
+        if((psp_model == PSP_1000) && _1k_file >= 0 && !IS_VITA_ADR((&ark_config))) {
             new_item5 = addCustomVshItem(84, "xmbmsgtop_150_reboot", sysconf_150_reboot_arg, item);
             AddVshItem(a0, topitem, new_item5);
         }
@@ -823,9 +844,8 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
         		sce_paf_private_strcpy(file, plugin->path);
 
         		char *p = sce_paf_private_strrchr(plugin->path, '/');
-                if (!p){
+                if (!p)
                     p = sce_paf_private_strchr(plugin->path, ',');
-                }
         		if(p)
         		{
                     p = strtrim(p+1);
@@ -1109,7 +1129,7 @@ void PatchVshMain(u32 text_addr, u32 text_size)
     for (u32 addr=text_addr; addr<text_addr+text_size && patches; addr+=4){
         u32 data = _lw(addr);
         if (data == 0x00063100){
-            AddVshItem = (void*)U_EXTRACT_CALL(addr+12);
+            AddVshItem = (void*)(U_EXTRACT_CALL(addr+12));
             MAKE_CALL(addr + 12, AddVshItemPatched);
             patches--;
         }
@@ -1254,18 +1274,13 @@ int OnModuleStart(SceModule *mod)
     u32 text_addr = mod->text_addr;
     u32 text_size = mod->text_size;
 
-    if (strcmp(modname, "vsh_module") == 0)
+    if(strcmp(modname, "vsh_module") == 0)
         PatchVshMain(text_addr, text_size);
-    else if (strcmp(modname, "sceVshAuthPlugin_Module") == 0)
+    else if(strcmp(modname, "sceVshAuthPlugin_Module") == 0)
         PatchAuthPlugin(text_addr, text_size);
-    else if (strcmp(modname, "sysconf_plugin_module") == 0)
+    else if(strcmp(modname, "sysconf_plugin_module") == 0)
         PatchSysconfPlugin(text_addr, text_size);
 
     if (previous) return previous(mod);
     return 0;
-}
-
-void initXmbPatch(){
-    findAllTranslatableStrings();
-    previous = sctrlHENSetStartModuleHandler(OnModuleStart);
 }
