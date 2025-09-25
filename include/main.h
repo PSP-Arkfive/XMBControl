@@ -59,6 +59,7 @@ typedef struct
     u8 noanalog;
     u8 umdregion;
     u8 vshregion;
+    u8 confirmbtn;
     u8 qaflags;
 } CFWConfig;
 

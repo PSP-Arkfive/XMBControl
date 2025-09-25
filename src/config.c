@@ -7,6 +7,7 @@
 #include <pspkernel.h>
 
 #include <ark.h>
+#include <vshctrl.h>
 #include <systemctrl_se.h>
 
 #include "main.h"
@@ -194,6 +195,10 @@ void loadSettings(){
 
     ProcessConfigFile(path, &processConfigLine, &processCustomConfig);
 
+    u32 btn_value;
+    vctrlGetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &btn_value);
+    
+    config.confirmbtn = btn_value;
     config.usbdevice = se_config.usbdevice;
     config.usbreadonly = se_config.usbdevice_rdonly;
     FIX_BOOLEAN(config.usbcharge);

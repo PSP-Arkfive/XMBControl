@@ -77,6 +77,7 @@ enum{
     DISABLE_ANALOG,
     UMD_REGION,
     VSH_REGION,
+    CONFIRM_BUTTON,
     QA_FLAGS,
 };
 
@@ -111,6 +112,7 @@ GetItem GetItemes[] =
     { DISABLE_ANALOG      +2, 0, "Disable Analog Stick" },
     { UMD_REGION          +2, 0, "UMD Region" },
     { VSH_REGION          +2, 0, "VSH Region" },
+    { CONFIRM_BUTTON      +2, 0, "Confirm Button" },
     { QA_FLAGS            +2, 0, "QA Flags" },
 };
 
@@ -188,6 +190,8 @@ char* ark_vshregion_settings[] = {
     "Taiwan", "Russia", "China", "Debug I", "Debug II"
 };
 
+char* ark_confirmbutton_settings[] = { "O", "X" };
+
 struct {
     int n;
     char** c;
@@ -216,6 +220,7 @@ struct {
     {2, ark_boolean_settings}, // Disable Analog Stick 
     {NELEMS(ark_umdregion_settings), ark_umdregion_settings}, // UMD Region
     {NELEMS(ark_vshregion_settings), ark_vshregion_settings}, // VSH Region
+    {2, ark_confirmbutton_settings}, // Confirmation Button
     {2, ark_boolean_settings}, // QA Flags
 };
 
@@ -949,7 +954,8 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 config.noumd,        	
                 config.noanalog,
                 config.umdregion,
-                config.vshregion,  
+                config.vshregion,
+                config.confirmbtn,
                 config.qaflags,            
             };
             
@@ -1012,6 +1018,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 &config.noanalog,
                 &config.umdregion,
                 &config.vshregion,
+                &config.confirmbtn,
                 &config.qaflags,
             };
             
@@ -1022,11 +1029,18 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 {
                     *configs[i] = GetItemes[i].negative ? !(*value) : *value;
                     saveSettings();
-                    if (i == UMD_REGION && config.umdregion) recreate_umd_keys();
-                    else if (i == 0 || i == 1){
+                    if (i == UMD_REGION && config.umdregion){
+                        recreate_umd_keys();
+                    }
+                    else if (i == USB_DEVICE || i == USB_READONLY){
                         se_config.usbdevice = config.usbdevice;
                         se_config.usbdevice_rdonly = config.usbreadonly;
                         sctrlSESetConfig(&se_config);
+                    }
+                    else if (i == CONFIRM_BUTTON){
+                        u32 value = config.confirmbtn;
+                        vctrlSetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", value);
+                        sctrlKernelExitVSH(NULL);
                     }
                     return 0;
                 }
