@@ -36,29 +36,30 @@ enum {
 
 typedef struct
 {
-    int magic;
-    int usbdevice;
-    int usbcharge;
-    int clock_game;
-    int clock_vsh;
-    int wpa2;
-    int launcher;
-    int highmem;
-    int mscache;
-    int infernocache;
-    int disablepause;
-    int oldplugin;
-    int hibblock;
-    int skiplogos;
-    int hidepics;
-    int hidemac;
-    int hidedlc;
-    int noled;
-    int noumd;
-    int noanalog;
-    int umdregion;
-    int vshregion;
-    int qaflags;
+    u32 magic;
+    u8 usbdevice;
+    u8 usbreadonly;
+    u8 usbcharge;
+    u8 clock_game;
+    u8 clock_vsh;
+    u8 wpa2;
+    u8 launcher;
+    u8 highmem;
+    u8 mscache;
+    u8 infernocache;
+    u8 disablepause;
+    u8 oldplugin;
+    u8 hibblock;
+    u8 skiplogos;
+    u8 hidepics;
+    u8 hidemac;
+    u8 hidedlc;
+    u8 noled;
+    u8 noumd;
+    u8 noanalog;
+    u8 umdregion;
+    u8 vshregion;
+    u8 qaflags;
 } CFWConfig;
 
 typedef struct

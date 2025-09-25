@@ -7,6 +7,7 @@
 #include <pspkernel.h>
 
 #include <ark.h>
+#include <systemctrl_se.h>
 
 #include "main.h"
 #include "list.h"
@@ -21,6 +22,7 @@ enum{
 
 extern CFWConfig config;
 extern ARKConfig ark_config;
+extern SEConfig se_config;
 
 List custom_config;
 
@@ -192,6 +194,8 @@ void loadSettings(){
 
     ProcessConfigFile(path, &processConfigLine, &processCustomConfig);
 
+    config.usbdevice = se_config.usbdevice;
+    config.usbreadonly = se_config.usbdevice_rdonly;
     FIX_BOOLEAN(config.usbcharge);
     FIX_BOOLEAN(config.launcher);
     FIX_BOOLEAN(config.highmem);

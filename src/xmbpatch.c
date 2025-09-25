@@ -56,6 +56,7 @@ static char custom_app_path[] = "ms0:/PSP/APP/CUSTOM/EBOOT.PBP";
 
 enum{
     USB_DEVICE,
+    USB_READONLY,
     USB_CHARGE,
     CPU_CLOCK_GAME,
     CPU_CLOCK_VSH,
@@ -89,6 +90,7 @@ typedef struct
 GetItem GetItemes[] =
 {
     { USB_DEVICE          +2, 0, "USB Device" },
+    { USB_READONLY        +2, 0, "USB Read-Only" },
     { USB_CHARGE          +2, 0, "USB Charge" },
     { CPU_CLOCK_GAME      +2, 0, "CPU Clock in Game" },
     { CPU_CLOCK_VSH       +2, 0, "CPU Clock in XMB" },
@@ -113,6 +115,22 @@ GetItem GetItemes[] =
 };
 
 #define PLUGINS_CONTEXT 1
+
+char* ark_boolean_settings[] = {
+    "Disabled",
+    "Enabled"
+};
+
+char* ark_boolean_settings2[] = {
+    "Auto",
+    "Forced"
+};
+
+char* ark_boolean_settings3[] = {
+    "Off",
+    "On",
+    "Auto",
+};
 
 char* ark_usbdev_settings[] = {
     "Memory Stick",
@@ -143,16 +161,6 @@ char* ark_hidepics_settings[] = {
     "Enabled",
     "PIC0",
     "PIC1"
-};
-
-char* ark_boolean_settings[] = {
-    "Disabled",
-    "Enabled"
-};
-
-char* ark_boolean_settings2[] = {
-    "Auto",
-    "Forced"
 };
 
 char* ark_infernocache_settings[] = {
@@ -187,6 +195,7 @@ struct {
     {0, NULL}, // None
     {3, ark_plugins_options}, // Plugins
     {NELEMS(ark_usbdev_settings)-1, ark_usbdev_settings}, // USB Device
+    {3, ark_boolean_settings3}, // USB Read-Only
     {2, ark_boolean_settings}, // USB Charge
     {4, ark_clock_settings}, // Clock Game
     {4, ark_clock_settings}, // Clock VSH
@@ -734,6 +743,7 @@ void AddSysconfContextItem(char *text, char *subtitle, char *regkey)
 int skipSetting(int i){
     if (IS_VITA((&ark_config))) return (
         i == USB_DEVICE ||
+        i == USB_READONLY ||
         i == USB_CHARGE ||
         i == DISABLE_GO_PAUSE ||
         i == OLD_GO_PLUGINS ||
@@ -916,9 +926,10 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 
         if(is_cfw_config == 1)
         {
-            int configs[] =
+            u8 configs[] =
             {
                 config.usbdevice,
+                config.usbreadonly,
                 config.usbcharge,        
                 config.clock_game,        
                 config.clock_vsh, 
@@ -977,9 +988,10 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
     {
         if(is_cfw_config == 1)
         {
-            static int *configs[] =
+            static u8 *configs[] =
             {
                 &config.usbdevice,
+                &config.usbreadonly,
                 &config.usbcharge,
                 &config.clock_game,
                 &config.clock_vsh,
@@ -1011,8 +1023,9 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     *configs[i] = GetItemes[i].negative ? !(*value) : *value;
                     saveSettings();
                     if (i == UMD_REGION && config.umdregion) recreate_umd_keys();
-                    else if (i == 0){
+                    else if (i == 0 || i == 1){
                         se_config.usbdevice = config.usbdevice;
+                        se_config.usbdevice_rdonly = config.usbreadonly;
                         sctrlSESetConfig(&se_config);
                     }
                     return 0;
