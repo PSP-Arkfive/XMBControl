@@ -943,6 +943,7 @@ void AddSysconfContextItem(char *text, char *subtitle, char *regkey)
 }
 
 int skipSetting(int i){
+    if (i == ACTIVATE_CODECS && codecs_active) return 1;
     if (IS_VITA((&ark_config))) return (
         i == USB_DEVICE ||
         i == USB_READONLY ||
