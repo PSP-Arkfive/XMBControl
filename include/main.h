@@ -64,6 +64,7 @@ typedef struct
     u8 import_plugins;
     u8 activate_codecs;
     u8 convert_battery;
+    u8 delete_go_pause;
     u8 reset_settings;
 } CFWConfig;
 

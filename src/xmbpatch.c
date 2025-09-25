@@ -52,6 +52,7 @@ int psp_model;
 SEConfig se_config;
 int codecs_active = 0;
 int battery_type = -1;
+int has_hibernation = 0;
 
 char * strtrim(char * text);
 
@@ -93,6 +94,7 @@ enum{
     CONFIRM_BUTTON,
     BATTERY_CONVERT,
     QA_FLAGS,
+    GO_PAUSE_DELETE,
     RESET_SETTINGS,
 };
 
@@ -133,6 +135,7 @@ GetItem GetItemes[] =
     { CONFIRM_BUTTON      +PLUGINS_CONTEXT+1, 0, "Confirm Button" },
     { BATTERY_CONVERT     +PLUGINS_CONTEXT+1, 0, "Battery Convert" },
     { QA_FLAGS            +PLUGINS_CONTEXT+1, 0, "QA Flags" },
+    { GO_PAUSE_DELETE     +PLUGINS_CONTEXT+1, 0, "Delete PSP Go Pause" },
     { RESET_SETTINGS      +PLUGINS_CONTEXT+1, 0, "Reset Settings" },
 };
 
@@ -261,6 +264,7 @@ struct {
     ITEM_OPT(confirmbutton_settings), // Confirmation Button
     ITEM_OPT(convert_battery_opts), // Convert Battery
     ITEM_OPT(boolean_settings), // QA Flags
+    ITEM_OPT(boolean_settings4), // PSP Go Pause Delete
     ITEM_OPT(boolean_settings4), // Reset Settings
 };
 
@@ -986,11 +990,13 @@ int skipSetting(int i){
     else if (psp_model != PSP_GO) return (
         i == DISABLE_GO_PAUSE ||
         i == OLD_GO_PLUGINS ||
-        i == NO_HIB_DELETE
+        i == NO_HIB_DELETE  ||
+        i == GO_PAUSE_DELETE
     );
     else if (psp_model == PSP_GO) return (
         i == DISABLE_UMD ||
-        i == UMD_REGION
+        i == UMD_REGION ||
+        (i == GO_PAUSE_DELETE && !has_hibernation) 
     );
     return 0;
 }
@@ -999,15 +1005,16 @@ void OnInitMenuPspConfigPatched()
 {
     if(is_cfw_config == 1)
     {
-        if(((u32 *)sysconf_option)[2] == 0)
+        if (((u32*)sysconf_option)[2] == 0)
         {
             codecs_active = codecs_activated();
             battery_type = battery_init();
+            has_hibernation = vshCtrlHibernationExists();
             loadSettings();
             int i;
             for(i = 0; i < NELEMS(GetItemes); i++)
             {
-                if ( skipSetting(i) ){
+                if (skipSetting(i)){
                     continue;
                 }
                 else{
@@ -1017,7 +1024,7 @@ void OnInitMenuPspConfigPatched()
         }
     }
     else if (is_cfw_config == 2){
-        if(((u32 *)sysconf_option)[2] == 0)
+        if (((u32*)sysconf_option)[2] == 0)
         {
             if (has_classic_plugins()){
                 AddSysconfContextItem("Import Classic Plugins", NULL, "Import Classic Plugins");
@@ -1179,7 +1186,8 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 config.vshregion,
                 config.confirmbtn,
                 config.convert_battery,
-                config.qaflags,       
+                config.qaflags,
+                config.delete_go_pause,   
                 config.reset_settings,     
             };
             
@@ -1251,6 +1259,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 &config.confirmbtn,
                 &config.convert_battery,
                 &config.qaflags,
+                &config.delete_go_pause,
                 &config.reset_settings,
             };
         
@@ -1280,6 +1289,10 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     }
                     else if (i == BATTERY_CONVERT){
                         battery_convert(config.convert_battery);
+                    }
+                    else if (i == GO_PAUSE_DELETE){
+                        vshCtrlDeleteHibernation();
+                        sctrlKernelExitVSH(NULL);
                     }
                     else if (i == RESET_SETTINGS){
                         if (config.reset_settings){
