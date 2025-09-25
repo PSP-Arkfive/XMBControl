@@ -978,7 +978,8 @@ int skipSetting(int i){
         i == DISABLE_GO_PAUSE ||
         i == USE_EXTRA_MEM ||
         i == OLD_GO_PLUGINS ||
-        i == NO_HIB_DELETE
+        i == NO_HIB_DELETE ||
+        i == GO_PAUSE_DELETE
     );
     else if (psp_model == PSP_11000) return (
         i == DISABLE_GO_PAUSE ||
@@ -1116,7 +1117,7 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
         		char *p = sce_paf_private_strrchr(plugin->path, '/');
                 if (!p)
                     p = sce_paf_private_strchr(plugin->path, ',');
-        		if(p)
+        		if (p)
         		{
                     p = strtrim(p+1);
         			char *p2 = sce_paf_private_strchr(p + 1, '.');
@@ -1155,7 +1156,7 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
         		return (wchar_t *)user_buffer;
             }
         }
-        else if(sce_paf_private_strcmp(name, "msg_system_update") == 0 && se_config.custom_update)
+        else if (sce_paf_private_strcmp(name, "msg_system_update") == 0 && se_config.custom_update)
         {
             char* translated = findTranslation("xmbmsg_system_update");
             if (!translated) translated = "ARK-4 Updater";
@@ -1174,6 +1175,9 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 
         if(is_cfw_config == 1)
         {
+            if (battery_type>=0)
+                config.convert_battery = battery_type;
+
             u8 configs[] =
             {
                 config.activate_codecs,
@@ -1209,7 +1213,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
             int i;
             for(i = 0; i < NELEMS(GetItemes); i++)
             {
-                if(sce_paf_private_strcmp(name, GetItemes[i].item) == 0)
+                if (sce_paf_private_strcmp(name, GetItemes[i].item) == 0)
                 {
                     context_mode = GetItemes[i].mode;
                     *value = configs[i];
@@ -1224,7 +1228,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 context_mode = PLUGINS_CONTEXT-1;
                 return 0;
             }
-            if(sce_paf_private_strncmp(name, "plugin_", 7) == 0)
+            if (sce_paf_private_strncmp(name, "plugin_", 7) == 0)
         	{
         		u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
@@ -1304,6 +1308,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     }
                     else if (i == BATTERY_CONVERT){
                         battery_convert(config.convert_battery);
+                        battery_type = config.convert_battery;
                     }
                     else if (i == GO_PAUSE_DELETE){
                         vshCtrlDeleteHibernation();
