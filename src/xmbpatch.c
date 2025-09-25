@@ -1149,6 +1149,11 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
                 utf8_to_unicode((wchar_t *)user_buffer, plugin_path);
         		return (wchar_t *)user_buffer;
             }
+            else {
+                char* translated = findTranslation(name);
+                utf8_to_unicode((wchar_t *)user_buffer, (translated)? translated:name);
+        		return (wchar_t *)user_buffer;
+            }
         }
         else if(sce_paf_private_strcmp(name, "msg_system_update") == 0 && se_config.custom_update)
         {
