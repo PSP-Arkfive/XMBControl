@@ -239,7 +239,7 @@ struct {
     ITEM_OPT(classic_plugins_opts), // Import Plugins
     ITEM_OPT(plugins_options), // Plugins
     ITEM_OPT(boolean_settings4), // Activate Codecs
-    {NELEMS(usbdev_settings)-1, usbdev_settings}, // USB Device
+    ITEM_OPT(usbdev_settings), // USB Device
     ITEM_OPT(boolean_settings3), // USB Read-Only
     ITEM_OPT(boolean_settings), // USB Charge
     ITEM_OPT(clock_settings), // Clock Game
@@ -1010,6 +1010,16 @@ void OnInitMenuPspConfigPatched()
             codecs_active = codecs_activated();
             battery_type = battery_init();
             has_hibernation = vshCtrlHibernationExists();
+            
+            // handle USB Devices
+            int n_usbdev = NELEMS(usbdev_settings);
+            if (psp_model == PSP_GO){ // Switch "Memory Stick" with "Internal Storage" on PSP Go
+                usbdev_settings[0] = usbdev_settings[n_usbdev-1];
+            }
+            // remove "Internal Storage" option (if not there)
+            if (n_usbdev == item_opts[USB_DEVICE+PLUGINS_CONTEXT+1].n)
+                item_opts[USB_DEVICE+PLUGINS_CONTEXT+1].n--;
+            
             loadSettings();
             int i;
             for(i = 0; i < NELEMS(GetItemes); i++)
