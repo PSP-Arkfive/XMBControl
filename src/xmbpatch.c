@@ -582,6 +582,8 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         startup = 0;
 
         int cur_icon = 0;
+        SceIoStat stat;
+        int ebootFound;
 
         if (psp_model == PSP_11000){
             u32 value = 0;
@@ -597,31 +599,32 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
         new_item2 = addCustomVshItem(82, "xmbmsgtop_sysconf_plugins", sysconf_plugins_action_arg, (cur_icon)?item:(SceVshItem*)ps_store_item);
         AddVshItem(a0, topitem, new_item2);
 
-        // Add Custom Launcher
-        new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
-        AddVshItem(a0, topitem, new_item3);
+        // Add Custom Launcher (if found)
+        char launcher_path[ARK_PATH_SIZE];
+        strcpy(launcher_path, ark_config.arkpath);
+        strcpy(launcher_path, VBOOT_PBP);
+        ebootFound = sceIoGetstat(launcher_path, &stat);
+        if (ebootFound >= 0){
+            new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
+            AddVshItem(a0, topitem, new_item3);
+        }
         
-        SceIoStat stat; 
-        int ebootFound;
-        if(psp_model == PSP_GO) {
-        	custom_app_path[0] = 'e';
-        	custom_app_path[1] = 'f';
-        	ebootFound = sceIoGetstat(custom_app_path, &stat);
-        	if(ebootFound < 0) {
-        		custom_app_path[0] = 'm'; 
-        		custom_app_path[1] = 's';
-        		ebootFound = sceIoGetstat(custom_app_path, &stat);
-        	}
+        // Add Custom App (if found)
+        custom_app_path[0] = 'e';
+        custom_app_path[1] = 'f';
+        ebootFound = sceIoGetstat(custom_app_path, &stat);
+        if(ebootFound < 0) {
+            custom_app_path[0] = 'm'; 
+            custom_app_path[1] = 's';
+            ebootFound = sceIoGetstat(custom_app_path, &stat);
         }
-        else {
-        	ebootFound = sceIoGetstat(custom_app_path, &stat);
-        }
-
+        
         if(ebootFound >= 0) {
             new_item4 = addCustomVshItem(84, "xmbmsgtop_custom_app", sysconf_custom_app_arg, (SceVshItem*)information_board_item);
             AddVshItem(a0, topitem, new_item4);
         }
 
+        // Add 1.50 Kernel Addon (if found)
         SceIoStat _150_file;
         int _1k_file = sceIoGetstat("ms0:/TM/DCARK/150/reboot150.prx", &_150_file);
         if((psp_model == PSP_1000) && _1k_file >= 0 && !IS_VITA_ADR((&ark_config))) {
