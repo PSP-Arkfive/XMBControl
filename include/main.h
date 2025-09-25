@@ -61,6 +61,7 @@ typedef struct
     u8 vshregion;
     u8 confirmbtn;
     u8 qaflags;
+    u8 import_plugins;
 } CFWConfig;
 
 typedef struct

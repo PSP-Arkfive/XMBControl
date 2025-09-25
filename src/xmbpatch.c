@@ -52,7 +52,16 @@ SEConfig se_config;
 
 char * strtrim(char * text);
 
-static char custom_app_path[] = "ms0:/PSP/APP/CUSTOM/EBOOT.PBP";
+char* custom_app_path = "ms0:/PSP/APP/CUSTOM/EBOOT.PBP";
+const char* PLUGIN_PATH_GO = "ef0:/SEPLUGINS/PLUGINS.TXT";
+const char* PLUGIN_PATH = "ms0:/SEPLUGINS/PLUGINS.TXT";
+const char* GAME_PLUGIN_PATH_GO = "ef0:/SEPLUGINS/GAME.TXT";
+const char* GAME_PLUGIN_PATH = "ms0:/SEPLUGINS/GAME.TXT";
+const char* VSH_PLUGIN_PATH_GO = "ef0:/SEPLUGINS/VSH.TXT";
+const char* VSH_PLUGIN_PATH = "ms0:/SEPLUGINS/VSH.TXT";
+const char* POPS_PLUGIN_PATH_GO = "ef0:/SEPLUGINS/POPS.TXT";
+const char* POPS_PLUGIN_PATH = "ms0:/SEPLUGINS/POPS.TXT";
+
 
 enum{
     USB_DEVICE,
@@ -81,6 +90,8 @@ enum{
     QA_FLAGS,
 };
 
+#define PLUGINS_CONTEXT 2
+
 typedef struct
 {
     int mode;
@@ -90,33 +101,31 @@ typedef struct
 
 GetItem GetItemes[] =
 {
-    { USB_DEVICE          +2, 0, "USB Device" },
-    { USB_READONLY        +2, 0, "USB Read-Only" },
-    { USB_CHARGE          +2, 0, "USB Charge" },
-    { CPU_CLOCK_GAME      +2, 0, "CPU Clock in Game" },
-    { CPU_CLOCK_VSH       +2, 0, "CPU Clock in XMB" },
-    { WPA2_SUPPORT        +2, 0, "WPA2 Support" },
-    { AUTOBOOT_LAUNCHER   +2, 0, "Autoboot Launcher" },
-    { USE_EXTRA_MEM       +2, 0, "Use Extra Memory" },
-    { MEM_STICK_SPEEDUP   +2, 0, "Memory Stick Speedup" },
-    { INFERNO_CACHE       +2, 0, "Inferno Cache" },
-    { DISABLE_GO_PAUSE    +2, 0, "Disable PSP Go Pause" },
-    { OLD_GO_PLUGINS      +2, 0, "Old Plugins on ef0" },
-    { NO_HIB_DELETE       +2, 0, "Prevent hibernation deletion on PSP Go" },
-    { SKIP_LOGOS          +2, 0, "Skip Sony logos" },
-    { HIDE_PICS           +2, 0, "Hide PIC0 and PIC1" },
-    { HIDE_MAC            +2, 0, "Hide MAC Address" },
-    { HIDE_DLC            +2, 0, "Hide DLC" },
-    { DISABLE_LED         +2, 0, "Turn off LEDs" },
-    { DISABLE_UMD         +2, 0, "Disable UMD Drive" },
-    { DISABLE_ANALOG      +2, 0, "Disable Analog Stick" },
-    { UMD_REGION          +2, 0, "UMD Region" },
-    { VSH_REGION          +2, 0, "VSH Region" },
-    { CONFIRM_BUTTON      +2, 0, "Confirm Button" },
-    { QA_FLAGS            +2, 0, "QA Flags" },
+    { USB_DEVICE          +PLUGINS_CONTEXT+1, 0, "USB Device" },
+    { USB_READONLY        +PLUGINS_CONTEXT+1, 0, "USB Read-Only" },
+    { USB_CHARGE          +PLUGINS_CONTEXT+1, 0, "USB Charge" },
+    { CPU_CLOCK_GAME      +PLUGINS_CONTEXT+1, 0, "CPU Clock in Game" },
+    { CPU_CLOCK_VSH       +PLUGINS_CONTEXT+1, 0, "CPU Clock in XMB" },
+    { WPA2_SUPPORT        +PLUGINS_CONTEXT+1, 0, "WPA2 Support" },
+    { AUTOBOOT_LAUNCHER   +PLUGINS_CONTEXT+1, 0, "Autoboot Launcher" },
+    { USE_EXTRA_MEM       +PLUGINS_CONTEXT+1, 0, "Use Extra Memory" },
+    { MEM_STICK_SPEEDUP   +PLUGINS_CONTEXT+1, 0, "Memory Stick Speedup" },
+    { INFERNO_CACHE       +PLUGINS_CONTEXT+1, 0, "Inferno Cache" },
+    { DISABLE_GO_PAUSE    +PLUGINS_CONTEXT+1, 0, "Disable PSP Go Pause" },
+    { OLD_GO_PLUGINS      +PLUGINS_CONTEXT+1, 0, "Old Plugins on ef0" },
+    { NO_HIB_DELETE       +PLUGINS_CONTEXT+1, 0, "Prevent hibernation deletion on PSP Go" },
+    { SKIP_LOGOS          +PLUGINS_CONTEXT+1, 0, "Skip Sony logos" },
+    { HIDE_PICS           +PLUGINS_CONTEXT+1, 0, "Hide PIC0 and PIC1" },
+    { HIDE_MAC            +PLUGINS_CONTEXT+1, 0, "Hide MAC Address" },
+    { HIDE_DLC            +PLUGINS_CONTEXT+1, 0, "Hide DLC" },
+    { DISABLE_LED         +PLUGINS_CONTEXT+1, 0, "Turn off LEDs" },
+    { DISABLE_UMD         +PLUGINS_CONTEXT+1, 0, "Disable UMD Drive" },
+    { DISABLE_ANALOG      +PLUGINS_CONTEXT+1, 0, "Disable Analog Stick" },
+    { UMD_REGION          +PLUGINS_CONTEXT+1, 0, "UMD Region" },
+    { VSH_REGION          +PLUGINS_CONTEXT+1, 0, "VSH Region" },
+    { CONFIRM_BUTTON      +PLUGINS_CONTEXT+1, 0, "Confirm Button" },
+    { QA_FLAGS            +PLUGINS_CONTEXT+1, 0, "QA Flags" },
 };
-
-#define PLUGINS_CONTEXT 1
 
 char* ark_boolean_settings[] = {
     "Disabled",
@@ -192,39 +201,44 @@ char* ark_vshregion_settings[] = {
 
 char* ark_confirmbutton_settings[] = { "O", "X" };
 
+char* classic_plugins_opts[] = {
+    "No Cleanup",
+    "With Cleanup",
+};
+
+#define ITEM_OPT(i) { NELEMS(i), i }
 struct {
     int n;
     char** c;
 } item_opts[] = {
     {0, NULL}, // None
-    {3, ark_plugins_options}, // Plugins
+    ITEM_OPT(classic_plugins_opts), // Import Plugins
+    ITEM_OPT(ark_plugins_options), // Plugins
     {NELEMS(ark_usbdev_settings)-1, ark_usbdev_settings}, // USB Device
-    {3, ark_boolean_settings3}, // USB Read-Only
-    {2, ark_boolean_settings}, // USB Charge
-    {4, ark_clock_settings}, // Clock Game
-    {4, ark_clock_settings}, // Clock VSH
-    {2, ark_boolean_settings}, // WPA2 ( Thanks again @Moment )
-    {2, ark_boolean_settings}, // Autoboot Launcher
-    {2, ark_boolean_settings2}, // Extra RAM
-    {2, ark_boolean_settings}, // MS Speedup
-    {3, ark_infernocache_settings}, // Inferno Cache
-    {2, ark_boolean_settings2}, // Disable Go Pause
-    {2, ark_boolean_settings}, // Old Plugins on ef0
-    {2, ark_boolean_settings}, // Prevent hib delete
-    {4, ark_skiplogos_settings}, // Skip Sony logos
-    {4, ark_hidepics_settings}, // Hide PIC0 and PIC1
-    {2, ark_boolean_settings}, // Hide MAC
-    {2, ark_boolean_settings}, // Hide DLC
-    {2, ark_boolean_settings}, // Turn off LEDs
-    {2, ark_boolean_settings}, // Disable UMD Drive
-    {2, ark_boolean_settings}, // Disable Analog Stick 
-    {NELEMS(ark_umdregion_settings), ark_umdregion_settings}, // UMD Region
-    {NELEMS(ark_vshregion_settings), ark_vshregion_settings}, // VSH Region
-    {2, ark_confirmbutton_settings}, // Confirmation Button
-    {2, ark_boolean_settings}, // QA Flags
+    ITEM_OPT(ark_boolean_settings3), // USB Read-Only
+    ITEM_OPT(ark_boolean_settings), // USB Charge
+    ITEM_OPT(ark_clock_settings), // Clock Game
+    ITEM_OPT(ark_clock_settings), // Clock VSH
+    ITEM_OPT(ark_boolean_settings), // WPA2 ( Thanks again @Moment )
+    ITEM_OPT(ark_boolean_settings), // Autoboot Launcher
+    ITEM_OPT(ark_boolean_settings2), // Extra RAM
+    ITEM_OPT(ark_boolean_settings), // MS Speedup
+    ITEM_OPT(ark_infernocache_settings), // Inferno Cache
+    ITEM_OPT(ark_boolean_settings2), // Disable Go Pause
+    ITEM_OPT(ark_boolean_settings), // Old Plugins on ef0
+    ITEM_OPT(ark_boolean_settings), // Prevent hib delete
+    ITEM_OPT(ark_skiplogos_settings), // Skip Sony logos
+    ITEM_OPT(ark_hidepics_settings), // Hide PIC0 and PIC1
+    ITEM_OPT(ark_boolean_settings), // Hide MAC
+    ITEM_OPT(ark_boolean_settings), // Hide DLC
+    ITEM_OPT(ark_boolean_settings), // Turn off LEDs
+    ITEM_OPT(ark_boolean_settings), // Disable UMD Drive
+    ITEM_OPT(ark_boolean_settings), // Disable Analog Stick 
+    ITEM_OPT(ark_umdregion_settings), // UMD Region
+    ITEM_OPT(ark_vshregion_settings), // VSH Region
+    ITEM_OPT(ark_confirmbutton_settings), // Confirmation Button
+    ITEM_OPT(ark_boolean_settings), // QA Flags
 };
-
-#define N_ITEMS (sizeof(GetItemes) / sizeof(GetItem))
 
 typedef struct {
     char* orig;
@@ -376,6 +390,177 @@ void recreate_umd_keys(void) {
     SceModule mod; kuKernelFindModuleByName("vsh_module", &mod);
     sctrlHookImportByNID(&mod, "sceVshBridge", 0x5C2983C2, (void*)1);
 }
+
+int codecs_activated() {
+    u32 flash_activated = 0;
+    u32 flash_play = 0;
+    u32 wma_play = 0;
+
+    vctrlGetRegistryValue("/CONFIG/BROWSER", "flash_activated", &flash_activated);
+    vctrlGetRegistryValue("/CONFIG/BROWSER", "flash_play", &flash_play);
+    vctrlGetRegistryValue("/CONFIG/MUSIC", "wma_play", &wma_play);
+
+    if (!flash_activated || !flash_play || !wma_play){
+        return 0;
+    }
+    
+    return 1;
+}
+
+int activate_codecs() {
+
+    if (!codecs_activated()){
+        vctrlSetRegistryValue("/CONFIG/BROWSER", "flash_activated", 1);
+        vctrlSetRegistryValue("/CONFIG/BROWSER", "flash_play", 1);
+        vctrlSetRegistryValue("/CONFIG/MUSIC", "wma_play", 1);
+        return 1;
+    }
+    
+    return 0;
+}
+
+void reset_ark_settings(){
+    const char settings[] =
+        "always, usbcharge, on\n"
+        "always, overclock, on\n"
+        "always, wpa2, on\n"
+        "always, launcher, off\n"
+        "always, highmem, off\n"
+        "always, mscache, on\n"
+        "always, infernocache, on\n"
+        "always, disablepause, off\n"
+        "always, oldplugin, on\n"
+        "always, skiplogos, off\n"
+        "always, hidepics, off\n"
+        "always, hibblock, on\n"
+        "always, hidemac, on\n"
+        "always, hidedlc, on\n"
+        "always, noled, off\n"
+        "always, noumd, off\n"
+        "always, noanalog, off\n"
+        "always, qaflags, on\n"
+        "\n"
+        "# The following games don't like Inferno Cache\n"
+        "# Luxor - The Wrath of Set (the other Luxor game works fine)\n"
+        "ULUS10201, infernocache, off\n"
+        "# Flat-Out Head On (both US and EU)\n"
+        "ULUS10328 ULES00968, infernocache, off\n"
+        "\n"
+        "# Enable Extra RAM on GTA LCS and VCS for CheatDeviceRemastered\n"
+        "ULUS10041 ULUS10160 ULES00151 ULES00502, highmem, on\n"
+    ;
+
+    char arkMenuPath[ARK_PATH_SIZE];
+    char arkSettingsPath[ARK_PATH_SIZE];
+    sce_paf_private_strcpy(arkMenuPath, ark_config.arkpath);
+    sce_paf_private_strcpy(arkSettingsPath, ark_config.arkpath);
+    strcat(arkMenuPath, MENU_SETTINGS);
+    strcat(arkSettingsPath, ARK_SETTINGS);
+    
+    int fd = sceIoOpen(arkMenuPath, PSP_O_RDONLY, 0);
+    if(fd) {
+        sceIoClose(fd);
+        sceIoRemove(arkMenuPath);
+        sceIoRemove(arkSettingsPath);
+        sceKernelDelayThread(8000);
+        int settings_file = sceIoOpen(arkSettingsPath, PSP_O_CREAT | PSP_O_WRONLY, 0777);
+        sceIoWrite(settings_file, settings, sizeof(settings)-1);
+        sceKernelDelayThread(8000);
+        sceIoClose(settings_file);
+
+    }
+}
+
+int has_classic_plugins(){
+    SceIoStat stat;
+    return (
+        sceIoGetstat(GAME_PLUGIN_PATH_GO, &stat) >= 0 ||
+        sceIoGetstat(GAME_PLUGIN_PATH, &stat) >= 0 ||
+        sceIoGetstat(VSH_PLUGIN_PATH_GO, &stat) >= 0 ||
+        sceIoGetstat(VSH_PLUGIN_PATH, &stat) >= 0 ||
+        sceIoGetstat(POPS_PLUGIN_PATH_GO, &stat) >= 0 ||
+        sceIoGetstat(POPS_PLUGIN_PATH, &stat) >= 0
+    );
+}
+
+void import_classic_plugins(int devpath, int cleanup) {
+    SceUID game, vsh, pops, plugins;
+    int i = 0;
+    int chunksize = 512;
+    int bytesRead;
+    char *buf = sce_paf_private_malloc(chunksize);
+    char *gameChar = "game, ";
+    int gameCharLength = sce_paf_private_strlen(gameChar);
+    char *vshChar = "vsh, ";
+    int vshCharLength = sce_paf_private_strlen(vshChar);
+    char *popsChar = "pops, ";
+    int popsCharLength = sce_paf_private_strlen(popsChar);
+    
+    char* filename = (devpath)? PLUGIN_PATH_GO : PLUGIN_PATH;
+    char* gamepath = (devpath)? GAME_PLUGIN_PATH_GO : GAME_PLUGIN_PATH;
+    char* vshpath = (devpath)? VSH_PLUGIN_PATH_GO : VSH_PLUGIN_PATH;
+    char* popspath = (devpath)? POPS_PLUGIN_PATH_GO : POPS_PLUGIN_PATH;
+
+    game = sceIoOpen(gamepath, PSP_O_RDONLY, 0777);
+    vsh = sceIoOpen(vshpath, PSP_O_RDONLY, 0777);
+    pops = sceIoOpen(popspath, PSP_O_RDONLY, 0777);
+    plugins = sceIoOpen(filename, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_APPEND, 0777);
+
+    // GAME.txt
+    sce_paf_private_memset(buf, 0, chunksize);
+    while ((bytesRead = sceIoRead(game, buf, chunksize)) > 0) {
+        for(i = 0; i < bytesRead; i++) {
+        	if (i == 0 || buf[i-1] == '\n' || buf[i-1] == '\0'){
+        		sceIoWrite(plugins, gameChar, gameCharLength);
+        	}
+        	if (buf[i] == ' ' && i != 0)
+        		sceIoWrite(plugins, ",", 1);
+        	sceIoWrite(plugins, &buf[i], 1);
+        }
+    }
+    sceIoClose(game);
+
+
+    sce_paf_private_memset(buf, 0, chunksize);
+
+    // VSH.txt
+    while ((bytesRead = sceIoRead(vsh, buf, chunksize)) > 0) {
+        for(i = 0; i < bytesRead; i++) {
+        	if (i == 0 || buf[i-1] == '\n' || buf[i-1] == '\0'){
+        		sceIoWrite(plugins, vshChar, vshCharLength);
+        	}
+        	if (buf[i] == ' ' && i != 0)
+        		sceIoWrite(plugins, ",", 1);
+        	sceIoWrite(plugins, &buf[i], 1);
+        }
+    }
+    sceIoClose(vsh);
+
+    sce_paf_private_memset(buf, 0, chunksize);
+
+    // POP.txt
+    while ((bytesRead = sceIoRead(pops, buf, chunksize)) > 0) {
+        for(i = 0; i < bytesRead; i++) {
+        	if (i == 0 || buf[i-1] == '\n' || buf[i-1] == '\0'){
+        		sceIoWrite(plugins, popsChar, popsCharLength);
+        	}
+        	if (buf[i] == ' ' && i != 0)
+        		sceIoWrite(plugins, ",", 1);
+        	sceIoWrite(plugins, &buf[i], 1);
+        }
+    }
+    sceIoClose(pops);
+
+    sceIoClose(plugins);
+    sce_paf_private_free(buf);
+
+    if (cleanup){
+        sceIoRemove(gamepath);
+        sceIoRemove(vshpath);
+        sceIoRemove(popspath);
+    }
+}
+
 
 SceOff findPkgOffset(const char* filename, unsigned* size, const char* pkgpath){
 
@@ -628,8 +813,8 @@ int AddVshItemPatched(void *a0, int topitem, SceVshItem *item)
 
         // Add Custom Launcher (if found)
         char launcher_path[ARK_PATH_SIZE];
-        strcpy(launcher_path, ark_config.arkpath);
-        strcpy(launcher_path, VBOOT_PBP);
+        sce_paf_private_strcpy(launcher_path, ark_config.arkpath);
+        strcat(launcher_path, VBOOT_PBP);
         ebootFound = sceIoGetstat(launcher_path, &stat);
         if (ebootFound >= 0){
             new_item3 = addCustomVshItem(83, "xmbmsgtop_custom_launcher", sysconf_custom_launcher_arg, (cur_icon)?item:(SceVshItem*)information_board_item);
@@ -792,7 +977,7 @@ void OnInitMenuPspConfigPatched()
         {
             loadSettings();
             int i;
-            for(i = 0; i < N_ITEMS; i++)
+            for(i = 0; i < NELEMS(GetItemes); i++)
             {
                 if ( skipSetting(i) ){
                     continue;
@@ -806,6 +991,9 @@ void OnInitMenuPspConfigPatched()
     else if (is_cfw_config == 2){
         if(((u32 *)sysconf_option)[2] == 0)
         {
+            if (has_classic_plugins()){
+                AddSysconfContextItem("Import Classic Plugins", NULL, "Import Classic Plugins");
+            }
             loadPlugins();
             for (int i=0; i<plugins.count; i++){
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
@@ -828,7 +1016,7 @@ SceSysconfItem *GetSysconfItemPatched(void *a0, void *a1)
     if(is_cfw_config == 1)
     {
         int i;
-        for(i = 0; i < N_ITEMS; i++)
+        for(i = 0; i < NELEMS(GetItemes); i++)
         {
             if(sce_paf_private_strcmp(item->text, GetItemes[i].item) == 0)
             {
@@ -837,7 +1025,12 @@ SceSysconfItem *GetSysconfItemPatched(void *a0, void *a1)
         }
     }
     else if (is_cfw_config == 2){
-        context_mode = PLUGINS_CONTEXT;
+        if (sce_paf_private_strcmp(item->text, "Import Classic Plugins") == 0){
+            context_mode = PLUGINS_CONTEXT-1;
+        }
+        else {
+            context_mode = PLUGINS_CONTEXT;
+        }
     }
     return item;
 }
@@ -869,7 +1062,11 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
             }
         }
         else if (is_cfw_config == 2){
-            if(sce_paf_private_strncmp(name, "plugin_", 7) == 0){
+            if (sce_paf_private_strcmp(name, "Import Classic Plugins") == 0){
+                utf8_to_unicode((wchar_t *)user_buffer, name);
+        		return (wchar_t *)user_buffer;
+            }
+            if (sce_paf_private_strncmp(name, "plugin_", 7) == 0){
                 u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
         		static char file[128];
@@ -960,7 +1157,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
             };
             
             int i;
-            for(i = 0; i < N_ITEMS; i++)
+            for(i = 0; i < NELEMS(GetItemes); i++)
             {
                 if(sce_paf_private_strcmp(name, GetItemes[i].item) == 0)
                 {
@@ -972,6 +1169,11 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 
         }
         else if (is_cfw_config == 2){
+            if (sce_paf_private_strcmp(name, "Import Classic Plugins") == 0){
+                *value = config.import_plugins;
+                context_mode = PLUGINS_CONTEXT-1;
+                return 0;
+            }
             if(sce_paf_private_strncmp(name, "plugin_", 7) == 0)
         	{
         		u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
@@ -990,9 +1192,9 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 
 int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
 {
-    if(name)
+    if (name)
     {
-        if(is_cfw_config == 1)
+        if (is_cfw_config == 1)
         {
             static u8 *configs[] =
             {
@@ -1021,11 +1223,10 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 &config.confirmbtn,
                 &config.qaflags,
             };
-            
-            int i;
-            for(i = 0; i < N_ITEMS; i++)
+        
+            for (int i = 0; i < NELEMS(GetItemes); i++)
             {
-                if(sce_paf_private_strcmp(name, GetItemes[i].item) == 0)
+                if (sce_paf_private_strcmp(name, GetItemes[i].item) == 0)
                 {
                     *configs[i] = GetItemes[i].negative ? !(*value) : *value;
                     saveSettings();
@@ -1047,6 +1248,14 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
             }
         }
         else if (is_cfw_config == 2){
+            if (sce_paf_private_strcmp(name, "Import Classic Plugins") == 0){
+                config.import_plugins = *value;
+                context_mode = PLUGINS_CONTEXT-1;
+                import_classic_plugins(0, *value);
+                import_classic_plugins(1, *value);
+                sctrlKernelExitVSH(NULL);
+                return 0;
+            }
             if(sce_paf_private_strncmp(name, "plugin_", 7) == 0)
         	{
         		u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
@@ -1060,7 +1269,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 return 0;
         	}
         }
-        if(sce_paf_private_strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0)
+        if (sce_paf_private_strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0)
         {
             LoadTextLanguage(*value);
         }
