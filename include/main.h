@@ -62,6 +62,8 @@ typedef struct
     u8 confirmbtn;
     u8 qaflags;
     u8 import_plugins;
+    u8 activate_codecs;
+    u8 reset_settings;
 } CFWConfig;
 
 typedef struct

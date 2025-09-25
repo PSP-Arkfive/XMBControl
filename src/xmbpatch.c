@@ -49,6 +49,7 @@ CFWConfig config;
 
 int psp_model;
 SEConfig se_config;
+int codecs_active = 0;
 
 char * strtrim(char * text);
 
@@ -64,6 +65,7 @@ const char* POPS_PLUGIN_PATH = "ms0:/SEPLUGINS/POPS.TXT";
 
 
 enum{
+    ACTIVATE_CODECS,
     USB_DEVICE,
     USB_READONLY,
     USB_CHARGE,
@@ -88,6 +90,7 @@ enum{
     VSH_REGION,
     CONFIRM_BUTTON,
     QA_FLAGS,
+    RESET_SETTINGS,
 };
 
 #define PLUGINS_CONTEXT 2
@@ -101,6 +104,7 @@ typedef struct
 
 GetItem GetItemes[] =
 {
+    { ACTIVATE_CODECS     +PLUGINS_CONTEXT+1, 0, "Activate Flash and WMA Codecs" },
     { USB_DEVICE          +PLUGINS_CONTEXT+1, 0, "USB Device" },
     { USB_READONLY        +PLUGINS_CONTEXT+1, 0, "USB Read-Only" },
     { USB_CHARGE          +PLUGINS_CONTEXT+1, 0, "USB Charge" },
@@ -125,6 +129,7 @@ GetItem GetItemes[] =
     { VSH_REGION          +PLUGINS_CONTEXT+1, 0, "VSH Region" },
     { CONFIRM_BUTTON      +PLUGINS_CONTEXT+1, 0, "Confirm Button" },
     { QA_FLAGS            +PLUGINS_CONTEXT+1, 0, "QA Flags" },
+    { RESET_SETTINGS      +PLUGINS_CONTEXT+1, 0, "Reset Settings" },
 };
 
 char* ark_boolean_settings[] = {
@@ -141,6 +146,11 @@ char* ark_boolean_settings3[] = {
     "Off",
     "On",
     "Auto",
+};
+
+char* ark_boolean_settings4[] = {
+    "Cancel",
+    "Confirm",
 };
 
 char* ark_usbdev_settings[] = {
@@ -214,6 +224,7 @@ struct {
     {0, NULL}, // None
     ITEM_OPT(classic_plugins_opts), // Import Plugins
     ITEM_OPT(ark_plugins_options), // Plugins
+    ITEM_OPT(ark_boolean_settings4), // Activate Codecs
     {NELEMS(ark_usbdev_settings)-1, ark_usbdev_settings}, // USB Device
     ITEM_OPT(ark_boolean_settings3), // USB Read-Only
     ITEM_OPT(ark_boolean_settings), // USB Charge
@@ -238,6 +249,7 @@ struct {
     ITEM_OPT(ark_vshregion_settings), // VSH Region
     ITEM_OPT(ark_confirmbutton_settings), // Confirmation Button
     ITEM_OPT(ark_boolean_settings), // QA Flags
+    ITEM_OPT(ark_boolean_settings4), // Reset Settings
 };
 
 typedef struct {
@@ -496,10 +508,10 @@ void import_classic_plugins(int devpath, int cleanup) {
     char *popsChar = "pops, ";
     int popsCharLength = sce_paf_private_strlen(popsChar);
     
-    char* filename = (devpath)? PLUGIN_PATH_GO : PLUGIN_PATH;
-    char* gamepath = (devpath)? GAME_PLUGIN_PATH_GO : GAME_PLUGIN_PATH;
-    char* vshpath = (devpath)? VSH_PLUGIN_PATH_GO : VSH_PLUGIN_PATH;
-    char* popspath = (devpath)? POPS_PLUGIN_PATH_GO : POPS_PLUGIN_PATH;
+    const char* filename = (devpath)? PLUGIN_PATH_GO : PLUGIN_PATH;
+    const char* gamepath = (devpath)? GAME_PLUGIN_PATH_GO : GAME_PLUGIN_PATH;
+    const char* vshpath = (devpath)? VSH_PLUGIN_PATH_GO : VSH_PLUGIN_PATH;
+    const char* popspath = (devpath)? POPS_PLUGIN_PATH_GO : POPS_PLUGIN_PATH;
 
     game = sceIoOpen(gamepath, PSP_O_RDONLY, 0777);
     vsh = sceIoOpen(vshpath, PSP_O_RDONLY, 0777);
@@ -975,6 +987,7 @@ void OnInitMenuPspConfigPatched()
     {
         if(((u32 *)sysconf_option)[2] == 0)
         {
+            codecs_active = codecs_activated();
             loadSettings();
             int i;
             for(i = 0; i < NELEMS(GetItemes); i++)
@@ -1130,6 +1143,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
         {
             u8 configs[] =
             {
+                config.activate_codecs,
                 config.usbdevice,
                 config.usbreadonly,
                 config.usbcharge,        
@@ -1153,7 +1167,8 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 config.umdregion,
                 config.vshregion,
                 config.confirmbtn,
-                config.qaflags,            
+                config.qaflags,       
+                config.reset_settings,     
             };
             
             int i;
@@ -1198,6 +1213,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
         {
             static u8 *configs[] =
             {
+                &config.activate_codecs,
                 &config.usbdevice,
                 &config.usbreadonly,
                 &config.usbcharge,
@@ -1222,6 +1238,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                 &config.vshregion,
                 &config.confirmbtn,
                 &config.qaflags,
+                &config.reset_settings,
             };
         
             for (int i = 0; i < NELEMS(GetItemes); i++)
@@ -1242,6 +1259,16 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                         u32 value = config.confirmbtn;
                         vctrlSetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", value);
                         sctrlKernelExitVSH(NULL);
+                    }
+                    else if (i == ACTIVATE_CODECS){
+                        if (config.activate_codecs && activate_codecs())
+                            sctrlKernelExitVSH(NULL);
+                    }
+                    else if (i == RESET_SETTINGS){
+                        if (config.reset_settings){
+                            reset_ark_settings();
+                            sctrlKernelExitVSH(NULL);
+                        }
                     }
                     return 0;
                 }
