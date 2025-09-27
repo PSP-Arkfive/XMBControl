@@ -68,6 +68,7 @@ typedef struct
     u8 reset_settings;
 } CFWConfig;
 
+// TODO: send some of these to pspsdk
 typedef struct
 {
     char text[48];
@@ -120,6 +121,7 @@ typedef struct
 } SceRcoEntry;
 
 int sce_paf_private_wcslen(wchar_t *);
+int sce_paf_private_wcscpy(wchar_t* str1, wchar_t* str2);
 int sce_paf_private_sprintf(char *, const char *, ...);
 void *sce_paf_private_memcpy(void *, void *, int);
 void *sce_paf_private_memset(void *, char, int);
@@ -143,5 +145,7 @@ int vshGetRegistryValue(u32 *, char *, void *, int , int *);
 int vshSetRegistryValue(u32 *, char *, int , int *);
 
 int sceVshCommonGuiBottomDialog(void *a0, void *a1, void *a2, int (* cancel_handler)(), void *t0, void *t1, int (* handler)(), void *t3);
+
+void patchVshClock(u32 addr);
 
 #endif

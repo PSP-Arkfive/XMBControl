@@ -1472,7 +1472,7 @@ int sceVshCommonGuiBottomDialogPatched(void *a0, void *a1, void *a2, int (* canc
 
 void PatchVshMain(u32 text_addr, u32 text_size)
 {
-    int patches = 13;
+    int patches = 14;
     u32 scePafGetText_call = _lw((u32)&scePafGetText);
 
     for (u32 addr=text_addr; addr<text_addr+text_size && patches; addr+=4){
@@ -1513,6 +1513,10 @@ void PatchVshMain(u32 text_addr, u32 text_size)
         }
         else if (data == 0xAC520124){
             MAKE_CALL(addr + 4, UnloadModulePatched);
+            patches--;
+        }
+        else if (data == 0x24060064){
+            patchVshClock(addr);
             patches--;
         }
         else if (data == 0x24040010 && _lw(addr+20) == 0x0040F809){

@@ -4,6 +4,7 @@
 
 	STUB_START "scePaf",0x00090011,0x00120005
 	STUB_FUNC  0xAF067FA2,sce_paf_private_wcslen
+	STUB_FUNC  0x2BE8DDBB,sce_paf_private_wcscpy
 	STUB_FUNC  0xA138A376,sce_paf_private_sprintf
 	STUB_FUNC  0xB4652CFE,sce_paf_private_memcpy
 	STUB_FUNC  0xD9E2D6E1,sce_paf_private_memset
