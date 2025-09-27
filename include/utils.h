@@ -19,8 +19,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#ifndef XMBCTRL_UTILS_H
+#define XMBCTRL_UTILS_H
+
+#include <string.h>
 
 char * strtrim(char * text);
 int utf8_to_unicode(wchar_t *dest, char *src);
