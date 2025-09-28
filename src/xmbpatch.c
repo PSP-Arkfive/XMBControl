@@ -1094,7 +1094,7 @@ SceSysconfItem *GetSysconfItemPatched(void *a0, void *a1)
         if (sce_paf_private_strcmp(item->text, "Import Classic Plugins") == 0){
             context_mode = PLUGINS_CONTEXT-1;
         }
-        if (sce_paf_private_strncmp(item->text, "iplugin_", 8) == 0){
+        else if (sce_paf_private_strncmp(item->text, "iplugin_", 8) == 0){
             context_mode = PLUGINS_CONTEXT+1;
         }
         else {
