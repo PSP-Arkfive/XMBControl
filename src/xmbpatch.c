@@ -1185,7 +1185,7 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
         else if (sce_paf_private_strcmp(name, "msg_system_update") == 0 && se_config.custom_update)
         {
             char* translated = findTranslation("xmbmsg_system_update");
-            if (!translated) translated = "ARK-4 Updater";
+            if (!translated) translated = "ARK Updater";
             utf8_to_unicode((wchar_t *)user_buffer, translated);
         	return (wchar_t *)user_buffer;
         }
