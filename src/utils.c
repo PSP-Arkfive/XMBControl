@@ -23,7 +23,7 @@
 #include <pspsdk.h>
 #include <pspkernel.h>
 
-#include "include/main.h"
+#include "main.h"
 
 #define MASKBITS 0x3F
 #define MASKBYTE 0x80
