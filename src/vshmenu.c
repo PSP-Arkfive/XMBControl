@@ -29,13 +29,13 @@ struct {
     int show_info;
 } vshmenu;
 
-wchar_t* menu_opts[] = {
-    L"Information",
-    L"Soft Reset",
-    L"Hard Reset",
-    L"Suspend",
-    L"Shutdown",
-    L"Exit",
+char* menu_opts[] = {
+    "Information",
+    "Soft Reset",
+    "Hard Reset",
+    "Suspend",
+    "Shutdown",
+    "Exit",
 };
 
 enum {
@@ -47,7 +47,7 @@ enum {
     EXIT_MENU
 };
 
-wchar_t info_string[256];
+char info_string[128];
 
 int (*scePafAddClockOrig)(ScePspDateTime*, wchar_t*, int, wchar_t*) = NULL;
 
@@ -80,20 +80,26 @@ int EatKey(SceCtrlData *pad_data, int count)
 int scePafAddClockPatched(ScePspDateTime* time, wchar_t* str, int max_len, wchar_t* format) {
     if (vshmenu.is_registered ){
         if (vshmenu.menu_mode == 2){
-            return sce_paf_private_wcscpy(str, L"Bye!");
+            return utf8_to_unicode(str, "Bye!");
         }
         else if (vshmenu.show_info){
-            return sce_paf_private_wcscpy(str, info_string);
+            return utf8_to_unicode(str, info_string);
         }
-        return sce_paf_private_wcsprintf(str, max_len, L"\n\n\n\n\n\n\n %s%s\n %s%s\n %s%s\n %s%s\n %s%s\n %s%s\n",
-            (vshmenu.cur_idx==0)? WSTAR:L" ", menu_opts[0],
-            (vshmenu.cur_idx==1)? WSTAR:L" ", menu_opts[1],
-            (vshmenu.cur_idx==2)? WSTAR:L" ", menu_opts[2],
-            (vshmenu.cur_idx==3)? WSTAR:L" ", menu_opts[3],
-            (vshmenu.cur_idx==4)? WSTAR:L" ", menu_opts[4],
-            (vshmenu.cur_idx==5)? WSTAR:L" ", menu_opts[5]
+        else {
+            char* tmp = sce_paf_private_malloc(512);
+            sce_paf_private_sprintf(tmp, "\n\n\n\n\n\n\n %s%s\n %s%s\n %s%s\n %s%s\n %s%s\n %s%s\n",
+                (vshmenu.cur_idx==0)? STAR:" ", menu_opts[0],
+                (vshmenu.cur_idx==1)? STAR:" ", menu_opts[1],
+                (vshmenu.cur_idx==2)? STAR:" ", menu_opts[2],
+                (vshmenu.cur_idx==3)? STAR:" ", menu_opts[3],
+                (vshmenu.cur_idx==4)? STAR:" ", menu_opts[4],
+                (vshmenu.cur_idx==5)? STAR:" ", menu_opts[5]
 
-        );
+            );
+            int res = utf8_to_unicode(str, tmp);
+            sce_paf_private_free(tmp);
+            return res;
+        }
     }
     else {
         return scePafAddClockOrig(time, str, max_len, format);
@@ -132,8 +138,7 @@ void patchVshClock(u32 addr){
         }
     }
 
-    char tmp[128];
-    sce_paf_private_sprintf(tmp, "\n\n\n"
+    sce_paf_private_sprintf(info_string, "\n\n\n"
         "CFW: ARK %d.%d.%d r%d\n"
         "Built: %s %s\n"
         "Console: %s FW%d%d%d",
@@ -142,7 +147,6 @@ void patchVshClock(u32 addr){
         __DATE__, __TIME__,
         console_type, major, minor, micro
     );
-    utf8_to_unicode(info_string, tmp);
 
     scePafAddClockOrig = (void*)U_EXTRACT_CALL(addr + 4);
 

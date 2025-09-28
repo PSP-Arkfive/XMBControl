@@ -29,7 +29,8 @@ extern void findAllTranslatableStrings();
 extern int OnModuleStart(SceModule *mod);
 
 int module_start(SceSize args, void *argp)
-{        
+{
+
     psp_model = kuKernelGetModel();
 
     sctrlSEGetConfig(&se_config);

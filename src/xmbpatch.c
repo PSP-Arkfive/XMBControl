@@ -1177,6 +1177,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
         {
             if (battery_type>=0)
                 config.convert_battery = battery_type;
+            else config.convert_battery = 0;
 
             u8 configs[] =
             {
