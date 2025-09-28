@@ -108,3 +108,7 @@ char * strtrim(char * text)
     // Return Trimmed String
     return text;
 }
+
+int isFolder(SceIoDirent* dit){
+    return FIO_SO_ISDIR(dit->d_stat.st_attr) || FIO_S_ISDIR(dit->d_stat.st_mode);
+}

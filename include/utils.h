@@ -26,5 +26,6 @@
 
 char * strtrim(char * text);
 int utf8_to_unicode(wchar_t *dest, char *src);
+int isFolder(SceIoDirent* dit);
 
 #endif

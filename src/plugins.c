@@ -180,6 +180,28 @@ int isPluginInstalled(char* plugin_path, char* plugin_name){
     return 0;
 }
 
+static void findInstallablePluginsSubfolder(int place, char* subfolder){
+    char fullpath[128];
+    sce_paf_private_strcpy(fullpath, plugins_paths[place]);
+    strcat(fullpath, subfolder);
+
+    SceUID dir = sceIoDopen(fullpath);
+    SceIoDirent dit;
+    memset(&dit, 0, sizeof(SceIoDirent));
+
+    while ((sceIoDread(dir, &dit)) > 0){
+        if (dit.d_name[0] == '.') continue;
+        char* ext = sce_paf_private_strrchr(dit.d_name, '.');
+        if (ext && strcasecmp(ext, ".prx") == 0 && !isPluginInstalled(plugins_paths[place], dit.d_name)){
+            char plugin_name[64];
+            sce_paf_private_sprintf(plugin_name, "%s/%s", subfolder, dit.d_name);
+            processInstallablePlugin(plugin_name, place);
+        }
+    }
+
+    sceIoDclose(dir);
+}
+
 void findInstallablePlugins(){
     clear_list(&iplugins, &list_cleaner);
     for (int i=0; i<NELEMS(plugins_paths)-1; i++){
@@ -188,6 +210,11 @@ void findInstallablePlugins(){
         memset(&dit, 0, sizeof(SceIoDirent));
 
         while ((sceIoDread(dir, &dit)) > 0){
+            if (dit.d_name[0] == '.') continue;
+            if (isFolder(&dit)){
+                findInstallablePluginsSubfolder(i, dit.d_name);
+                continue;
+            }
             char* ext = sce_paf_private_strrchr(dit.d_name, '.');
             if (ext && strcasecmp(ext, ".prx") == 0 && !isPluginInstalled(plugins_paths[i], dit.d_name)){
                 processInstallablePlugin(dit.d_name, i);

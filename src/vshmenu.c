@@ -215,7 +215,7 @@ static void button_func(void)
 int TSRThread(SceSize args, void *argp)
 {
 
-    sceKernelChangeThreadPriority(0, 8);
+    sceKernelChangeThreadPriority(0, 3);
     vctrlVSHRegisterVshMenu(EatKey);
 
     vshmenu.is_registered = 1;
