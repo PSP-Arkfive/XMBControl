@@ -150,7 +150,7 @@ void patchVshClock(u32 addr){
 
     scePafAddClockOrig = (void*)U_EXTRACT_CALL(addr + 4);
 
-    _sh(0, addr - 0x48);
+    _sh((u16)-4, addr - 0x48);
     MAKE_CALL(addr + 4, (u32)&scePafAddClockPatched);
 
     sceKernelDcacheWritebackAll();
@@ -215,7 +215,7 @@ static void button_func(void)
 int TSRThread(SceSize args, void *argp)
 {
 
-    sceKernelChangeThreadPriority(0, 3);
+    sceKernelChangeThreadPriority(0, 8);
     vctrlVSHRegisterVshMenu(EatKey);
 
     vshmenu.is_registered = 1;
