@@ -3,7 +3,7 @@
 
 #define LINE_BUFFER_SIZE 256
 #define LINE_TOKEN_DELIMITER ','
-#define MAX_LANG_STRINGS 128
+#define MAX_LANG_STRINGS 256
 
 enum{
     DISABLED,

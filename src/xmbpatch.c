@@ -109,34 +109,34 @@ typedef struct
 
 GetItem GetItemes[] =
 {
-    { ACTIVATE_CODECS     +PLUGINS_CONTEXT+1, 0, "Activate Flash and WMA Codecs" },
-    { USB_DEVICE          +PLUGINS_CONTEXT+1, 0, "USB Device" },
-    { USB_READONLY        +PLUGINS_CONTEXT+1, 0, "USB Read-Only" },
-    { USB_CHARGE          +PLUGINS_CONTEXT+1, 0, "USB Charge" },
-    { CPU_CLOCK_GAME      +PLUGINS_CONTEXT+1, 0, "CPU Clock in Game" },
-    { CPU_CLOCK_VSH       +PLUGINS_CONTEXT+1, 0, "CPU Clock in XMB" },
-    { WPA2_SUPPORT        +PLUGINS_CONTEXT+1, 0, "WPA2 Support" },
-    { AUTOBOOT_LAUNCHER   +PLUGINS_CONTEXT+1, 0, "Autoboot Launcher" },
-    { USE_EXTRA_MEM       +PLUGINS_CONTEXT+1, 0, "Use Extra Memory" },
-    { MEM_STICK_SPEEDUP   +PLUGINS_CONTEXT+1, 0, "Memory Stick Speedup" },
-    { INFERNO_CACHE       +PLUGINS_CONTEXT+1, 0, "Inferno Cache" },
-    { DISABLE_GO_PAUSE    +PLUGINS_CONTEXT+1, 0, "Disable PSP Go Pause" },
-    { OLD_GO_PLUGINS      +PLUGINS_CONTEXT+1, 0, "Old Plugins on ef0" },
-    { NO_HIB_DELETE       +PLUGINS_CONTEXT+1, 0, "Prevent hibernation deletion on PSP Go" },
-    { SKIP_LOGOS          +PLUGINS_CONTEXT+1, 0, "Skip Sony logos" },
-    { HIDE_PICS           +PLUGINS_CONTEXT+1, 0, "Hide PIC0 and PIC1" },
-    { HIDE_MAC            +PLUGINS_CONTEXT+1, 0, "Hide MAC Address" },
-    { HIDE_DLC            +PLUGINS_CONTEXT+1, 0, "Hide DLC" },
-    { DISABLE_LED         +PLUGINS_CONTEXT+1, 0, "Turn off LEDs" },
-    { DISABLE_UMD         +PLUGINS_CONTEXT+1, 0, "Disable UMD Drive" },
-    { DISABLE_ANALOG      +PLUGINS_CONTEXT+1, 0, "Disable Analog Stick" },
-    { UMD_REGION          +PLUGINS_CONTEXT+1, 0, "UMD Region" },
-    { VSH_REGION          +PLUGINS_CONTEXT+1, 0, "VSH Region" },
-    { CONFIRM_BUTTON      +PLUGINS_CONTEXT+1, 0, "Confirm Button" },
-    { BATTERY_CONVERT     +PLUGINS_CONTEXT+1, 0, "Battery Convert" },
-    { QA_FLAGS            +PLUGINS_CONTEXT+1, 0, "QA Flags" },
-    { GO_PAUSE_DELETE     +PLUGINS_CONTEXT+1, 0, "Delete PSP Go Pause" },
-    { RESET_SETTINGS      +PLUGINS_CONTEXT+1, 0, "Reset Settings" },
+    { ACTIVATE_CODECS     +PLUGINS_CONTEXT+2, 0, "Activate Flash and WMA Codecs" },
+    { USB_DEVICE          +PLUGINS_CONTEXT+2, 0, "USB Device" },
+    { USB_READONLY        +PLUGINS_CONTEXT+2, 0, "USB Read-Only" },
+    { USB_CHARGE          +PLUGINS_CONTEXT+2, 0, "USB Charge" },
+    { CPU_CLOCK_GAME      +PLUGINS_CONTEXT+2, 0, "CPU Clock in Game" },
+    { CPU_CLOCK_VSH       +PLUGINS_CONTEXT+2, 0, "CPU Clock in XMB" },
+    { WPA2_SUPPORT        +PLUGINS_CONTEXT+2, 0, "WPA2 Support" },
+    { AUTOBOOT_LAUNCHER   +PLUGINS_CONTEXT+2, 0, "Autoboot Launcher" },
+    { USE_EXTRA_MEM       +PLUGINS_CONTEXT+2, 0, "Use Extra Memory" },
+    { MEM_STICK_SPEEDUP   +PLUGINS_CONTEXT+2, 0, "Memory Stick Speedup" },
+    { INFERNO_CACHE       +PLUGINS_CONTEXT+2, 0, "Inferno Cache" },
+    { DISABLE_GO_PAUSE    +PLUGINS_CONTEXT+2, 0, "Disable PSP Go Pause" },
+    { OLD_GO_PLUGINS      +PLUGINS_CONTEXT+2, 0, "Old Plugins on ef0" },
+    { NO_HIB_DELETE       +PLUGINS_CONTEXT+2, 0, "Prevent hibernation deletion on PSP Go" },
+    { SKIP_LOGOS          +PLUGINS_CONTEXT+2, 0, "Skip Sony logos" },
+    { HIDE_PICS           +PLUGINS_CONTEXT+2, 0, "Hide PIC0 and PIC1" },
+    { HIDE_MAC            +PLUGINS_CONTEXT+2, 0, "Hide MAC Address" },
+    { HIDE_DLC            +PLUGINS_CONTEXT+2, 0, "Hide DLC" },
+    { DISABLE_LED         +PLUGINS_CONTEXT+2, 0, "Turn off LEDs" },
+    { DISABLE_UMD         +PLUGINS_CONTEXT+2, 0, "Disable UMD Drive" },
+    { DISABLE_ANALOG      +PLUGINS_CONTEXT+2, 0, "Disable Analog Stick" },
+    { UMD_REGION          +PLUGINS_CONTEXT+2, 0, "UMD Region" },
+    { VSH_REGION          +PLUGINS_CONTEXT+2, 0, "VSH Region" },
+    { CONFIRM_BUTTON      +PLUGINS_CONTEXT+2, 0, "Confirm Button" },
+    { BATTERY_CONVERT     +PLUGINS_CONTEXT+2, 0, "Battery Convert" },
+    { QA_FLAGS            +PLUGINS_CONTEXT+2, 0, "QA Flags" },
+    { GO_PAUSE_DELETE     +PLUGINS_CONTEXT+2, 0, "Delete PSP Go Pause" },
+    { RESET_SETTINGS      +PLUGINS_CONTEXT+2, 0, "Reset Settings" },
 };
 
 char* boolean_settings[] = {
@@ -197,12 +197,6 @@ char* infernocache_settings[] = {
     "RR"
 };
 
-char* plugins_options[] = {
-    "Disabled",
-    "Enabled",
-    "Remove",
-};
-
 char* umdregion_settings[] = {
     "Default",
     "America",
@@ -220,15 +214,32 @@ char* confirmbutton_settings[] = {
     "O", "X"
 };
 
+char* convert_battery_opts[] = {
+    "Normal",
+    "Pandora",
+};
+
 char* classic_plugins_opts[] = {
     "No Cleanup",
     "With Cleanup",
 };
 
-char* convert_battery_opts[] = {
-    "Normal",
-    "Pandora",
+char* plugins_options[] = {
+    "Disabled",
+    "Enabled",
+    "Remove",
 };
+
+char* plugins_install_options[] = {
+    "Cancel",
+    "Always",
+    "Game",
+    "VSH",
+    "Pops",
+    "UMD/ISO",
+    "Homebrew",
+};
+
 
 #define ITEM_OPT(i) { NELEMS(i), i }
 struct {
@@ -238,6 +249,7 @@ struct {
     {0, NULL}, // None
     ITEM_OPT(classic_plugins_opts), // Import Plugins
     ITEM_OPT(plugins_options), // Plugins
+    ITEM_OPT(plugins_install_options), // Plugins Install
     ITEM_OPT(boolean_settings4), // Activate Codecs
     ITEM_OPT(usbdev_settings), // USB Device
     ITEM_OPT(boolean_settings3), // USB Read-Only
@@ -1018,8 +1030,8 @@ void OnInitMenuPspConfigPatched()
                 usbdev_settings[0] = usbdev_settings[n_usbdev-1];
             }
             // remove "Internal Storage" option (if not there)
-            if (n_usbdev == item_opts[USB_DEVICE+PLUGINS_CONTEXT+1].n)
-                item_opts[USB_DEVICE+PLUGINS_CONTEXT+1].n--;
+            if (n_usbdev == item_opts[USB_DEVICE+PLUGINS_CONTEXT+2].n)
+                item_opts[USB_DEVICE+PLUGINS_CONTEXT+2].n--;
             
             loadSettings();
             int i;
@@ -1041,8 +1053,15 @@ void OnInitMenuPspConfigPatched()
                 AddSysconfContextItem("Import Classic Plugins", NULL, "Import Classic Plugins");
             }
             loadPlugins();
+            findInstallablePlugins();
             for (int i=0; i<plugins.count; i++){
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
+                if (plugin->name != NULL){
+                    AddSysconfContextItem(plugin->name, plugin->surname, plugin->name);
+                }
+            }
+            for (int i=0; i<iplugins.count; i++){
+                Plugin* plugin = (Plugin*)(iplugins.table[i]);
                 if (plugin->name != NULL){
                     AddSysconfContextItem(plugin->name, plugin->surname, plugin->name);
                 }
@@ -1074,6 +1093,9 @@ SceSysconfItem *GetSysconfItemPatched(void *a0, void *a1)
         if (sce_paf_private_strcmp(item->text, "Import Classic Plugins") == 0){
             context_mode = PLUGINS_CONTEXT-1;
         }
+        if (sce_paf_private_strncmp(item->text, "iplugin_", 8) == 0){
+            context_mode = PLUGINS_CONTEXT+1;
+        }
         else {
             context_mode = PLUGINS_CONTEXT;
         }
@@ -1088,22 +1110,34 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
         if(is_cfw_config == 1 || sce_paf_private_strncmp(name, "xmbmsg", 6)==0)
         {
             char* translated = findTranslation(name);
+            char* star = NULL;
             if (!translated){
-                if(sce_paf_private_strcmp(name, "xmbmsgtop_sysconf_configuration") == 0)
+                if(sce_paf_private_strcmp(name, "xmbmsgtop_sysconf_configuration") == 0){
                     translated = "Custom Firmware Settings";
-                else if(sce_paf_private_strcmp(name, "xmbmsgtop_sysconf_plugins") == 0)
+                    star = STAR;
+                }
+                else if(sce_paf_private_strcmp(name, "xmbmsgtop_sysconf_plugins") == 0){
                     translated = "Plugins Manager";
-                else if(sce_paf_private_strcmp(name, "xmbmsgtop_custom_launcher") == 0)
+                    star = STAR;
+                }
+                else if(sce_paf_private_strcmp(name, "xmbmsgtop_custom_launcher") == 0){
                     translated = "Custom Launcher";
-                else if(sce_paf_private_strcmp(name, "xmbmsgtop_custom_app") == 0)
+                    star = STAR;
+                }
+                else if(sce_paf_private_strcmp(name, "xmbmsgtop_custom_app") == 0){
                     translated = "Custom App";
-                else if(sce_paf_private_strcmp(name, "xmbmsgtop_150_reboot") == 0)
+                    star = STAR;
+                }
+                else if(sce_paf_private_strcmp(name, "xmbmsgtop_150_reboot") == 0){
                     translated = "Reboot to 1.50 ARK";
+                    star = STAR;
+                }
                 else if (isTranslatableString(name))
                     translated = name; // should have been translated but wasn't
             }
             if (translated){
-                int offset = utf8_to_unicode((wchar_t *)user_buffer, STAR);
+                int offset = 0;
+                if (star) offset = utf8_to_unicode((wchar_t *)user_buffer, star);
                 utf8_to_unicode((wchar_t *)((u8*)user_buffer+offset), translated);
                 return (wchar_t *)user_buffer;
             }
@@ -1112,43 +1146,34 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
             if (sce_paf_private_strncmp(name, "plugin_", 7) == 0){
                 u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
-        		static char file[128];
-        		sce_paf_private_strcpy(file, plugin->path);
+                char file[128];
 
-        		char *p = sce_paf_private_strrchr(plugin->path, '/');
-                if (!p)
-                    p = sce_paf_private_strchr(plugin->path, ',');
-        		if (p)
-        		{
-                    p = strtrim(p+1);
-        			char *p2 = sce_paf_private_strchr(p + 1, '.');
-        			if(p2)
-        			{
-        				int len = (int)(p2 - p);
-        				sce_paf_private_strncpy(file, p, len);
-        				file[len] = '\0';
-        			}
-        		}
-
-        		utf8_to_unicode((wchar_t *)user_buffer, file);
+        		utf8_to_unicode((wchar_t *)user_buffer, getPluginName(plugin->path, file));
         		return (wchar_t *)user_buffer;
             }
             else if (sce_paf_private_strncmp(name, "plugins", 7) == 0){
-                char* paths[] = {
-                    "ms0:/SEPLUGINS/",
-                    "ef0:/SEPLUGINS/",
-                    ark_config.arkpath
-                };
                 u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
                 char plugin_path[128];
                 if (sce_paf_private_strchr(plugin->path, ':') == NULL){
-                    sce_paf_private_sprintf(plugin_path, "<%s> %s", paths[plugin->place], plugin->path);
+                    sce_paf_private_sprintf(plugin_path, "<%s> %s", plugins_paths[plugin->place], plugin->path);
                 }
                 else{
                     strcpy(plugin_path, plugin->path);
                 }
                 utf8_to_unicode((wchar_t *)user_buffer, plugin_path);
+        		return (wchar_t *)user_buffer;
+            }
+            else if (sce_paf_private_strncmp(name, "iplugin_", 8) == 0){
+                u32 i = sce_paf_private_strtoul(name + 8, NULL, 10);
+                Plugin* plugin = (Plugin*)(iplugins.table[i]);
+                utf8_to_unicode((wchar_t *)user_buffer, plugin->path);
+        		return (wchar_t *)user_buffer;
+            }
+            else if (sce_paf_private_strncmp(name, "iplugins", 8) == 0){
+                u32 i = sce_paf_private_strtoul(name + 8, NULL, 10);
+                Plugin* plugin = (Plugin*)(iplugins.table[i]);
+                utf8_to_unicode((wchar_t *)user_buffer, plugins_paths[plugin->place]);
         		return (wchar_t *)user_buffer;
             }
             else {
@@ -1235,6 +1260,14 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
         		u32 i = sce_paf_private_strtoul(name + 7, NULL, 10);
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
         		context_mode = PLUGINS_CONTEXT;
+        		*value = plugin->active;
+        		return 0;
+        	}
+            if (sce_paf_private_strncmp(name, "iplugin_", 8) == 0)
+        	{
+        		u32 i = sce_paf_private_strtoul(name + 8, NULL, 10);
+                Plugin* plugin = (Plugin*)(iplugins.table[i]);
+        		context_mode = PLUGINS_CONTEXT+1;
         		*value = plugin->active;
         		return 0;
         	}
@@ -1359,6 +1392,18 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     sctrlKernelExitVSH(NULL);
                 }
                 return 0;
+        	}
+            if (sce_paf_private_strncmp(name, "iplugin_", 8) == 0)
+        	{
+        		u32 i = sce_paf_private_strtoul(name + 8, NULL, 10);
+                Plugin* plugin = (Plugin*)(iplugins.table[i]);
+        		context_mode = PLUGINS_CONTEXT+1;
+        		plugin->active = *value;
+                if (*value > 0){
+                    installPlugin(plugin);
+                    sctrlKernelExitVSH(NULL);
+                }
+        		return 0;
         	}
         }
         if (sce_paf_private_strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0)

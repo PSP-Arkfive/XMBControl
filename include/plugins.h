@@ -28,7 +28,15 @@ typedef struct{
     int place;
 } Plugin;
 
+extern char* plugins_paths[];
+
+extern List plugins;
+extern List iplugins;
+
 void loadPlugins();
 void savePlugins();
+void installPlugin(Plugin* plugin);
+void findInstallablePlugins();
+char* getPluginName(char* plugin_path, char* file);
 
 #endif
