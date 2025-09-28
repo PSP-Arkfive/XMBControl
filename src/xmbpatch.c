@@ -231,7 +231,7 @@ char* plugins_options[] = {
 };
 
 char* plugins_install_options[] = {
-    "Cancel",
+    "None",
     "Always",
     "Game",
     "VSH",
