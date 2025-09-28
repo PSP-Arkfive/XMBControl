@@ -17,34 +17,33 @@
 extern int psp_model;
 extern ARKConfig ark_config;
 
-u16 backup1 = 0;
-u32 backup2 = 0;
-u32 patch_addr = 0;
+struct {
+    SceCtrlData ctrl_pad;
+    u32 cur_buttons;
+    u32 button_on;
+    int stop_flag;
+    int menu_mode;
+    int is_registered;
+} vshmenu;
 
-SceCtrlData ctrl_pad;
-u32 cur_buttons = 0xFFFFFFFF;
-u32 button_on  = 0;
-int stop_flag = 0;
-int menu_mode  = 0;
-int vshmenu_registered = 0;
+wchar_t info_string[256];
 
-wchar_t full_version[256];
+int (*scePafAddClockOrig)(ScePspDateTime*, wchar_t*, int, wchar_t*) = NULL;
 
 int EatKey(SceCtrlData *pad_data, int count)
 {
     u32 buttons;
-    int i;
 
     // copy true value
-    memcpy(&ctrl_pad, pad_data, sizeof(SceCtrlData));
+    memcpy(&vshmenu.ctrl_pad, pad_data, sizeof(SceCtrlData));
 
     // buttons check
-    buttons     = ctrl_pad.Buttons;
-    button_on   = ~cur_buttons & buttons;
-    cur_buttons = buttons;
+    buttons             = vshmenu.ctrl_pad.Buttons;
+    vshmenu.button_on   = ~vshmenu.cur_buttons & buttons;
+    vshmenu.cur_buttons = buttons;
 
     // mask buttons for LOCK VSH control
-    for(i=0;i < count;i++) {
+    for (int i=0; i<count; i++) {
         pad_data[i].Buttons &= ~(
                 PSP_CTRL_SELECT|PSP_CTRL_START|
                 PSP_CTRL_UP|PSP_CTRL_RIGHT|PSP_CTRL_DOWN|PSP_CTRL_LEFT|
@@ -58,12 +57,12 @@ int EatKey(SceCtrlData *pad_data, int count)
 }
 
 int scePafAddClockPatched(ScePspDateTime* time, wchar_t* str, int max_len, wchar_t* format) {
-    if (vshmenu_registered){
-        return sce_paf_private_wcscpy(str, full_version);
+    if (vshmenu.is_registered){
+        
+        return sce_paf_private_wcscpy(str, info_string);
     }
     else {
-        int (*orig)(ScePspDateTime*, wchar_t*, int, wchar_t*) = (void*)backup2;
-        return orig(time, str, max_len, format);
+        return scePafAddClockOrig(time, str, max_len, format);
     }
 }
 
@@ -109,11 +108,9 @@ void patchVshClock(u32 addr){
         __DATE__, __TIME__,
         console_type, major, minor, micro
     );
-    utf8_to_unicode(full_version, tmp);
+    utf8_to_unicode(info_string, tmp);
 
-    backup1 = _lh(addr - 0x48);
-    backup2 = U_EXTRACT_CALL(addr + 4);
-    patch_addr = addr;
+    scePafAddClockOrig = (void*)U_EXTRACT_CALL(addr + 4);
 
     _sh(0, addr - 0x48);
     MAKE_CALL(addr + 4, (u32)&scePafAddClockPatched);
@@ -135,19 +132,19 @@ int menu_ctrl(u32 button_on)
 static void button_func(void)
 {
     // menu controll
-    switch(menu_mode) {
+    switch (vshmenu.menu_mode) {
         case 0:    
-            if( (cur_buttons & ALL_CTRL) == 0) {
-                menu_mode = 1;
+            if ((vshmenu.cur_buttons & ALL_CTRL) == 0) {
+                vshmenu.menu_mode = 1;
             }
             break;
         case 1:
-            if(menu_ctrl(button_on))
-				menu_mode = 2;
+            if (menu_ctrl(vshmenu.button_on))
+				vshmenu.menu_mode = 2;
             break;
 		case 2:
-			if ((cur_buttons & ALL_CTRL) == 0)
-				stop_flag = 1;
+			if ((vshmenu.cur_buttons & ALL_CTRL) == 0)
+				vshmenu.stop_flag = 1;
 			break;
     }
 }
@@ -158,14 +155,14 @@ int TSRThread(SceSize args, void *argp)
     sceKernelChangeThreadPriority(0, 8);
     vctrlVSHRegisterVshMenu(EatKey);
 
-    vshmenu_registered = 1;
-    while (!stop_flag) {
+    vshmenu.is_registered = 1;
+    while (!vshmenu.stop_flag) {
         if( sceDisplayWaitVblankStart() < 0)
             break; // end of VSH ?
 
         button_func();
     }
-    vshmenu_registered = 0;
+    vshmenu.is_registered = 0;
 
 	vctrlVSHExitVSHMenu(NULL, NULL, 0);
     return sceKernelExitDeleteThread(0);
@@ -173,12 +170,8 @@ int TSRThread(SceSize args, void *argp)
 
 int xmbctrlEnterVshMenuMode(){
 
-    memset(&ctrl_pad, 0, sizeof(SceCtrlData));
-    cur_buttons = 0xFFFFFFFF;
-    button_on  = 0;
-    stop_flag = 0;
-    menu_mode  = 0;
-    vshmenu_registered = 0;
+    memset(&vshmenu, 0, sizeof(vshmenu));
+    vshmenu.cur_buttons = 0xFFFFFFFF;
 
     SceUID thread_id = sceKernelCreateThread("VshMenu_Thread", (void*)KERNELIFY(TSRThread), 16 , 0x1000 , 0 , 0);
     return sceKernelStartThread(thread_id, 0, 0);
