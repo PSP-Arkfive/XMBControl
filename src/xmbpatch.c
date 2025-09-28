@@ -983,7 +983,8 @@ int skipSetting(int i){
         i == DISABLE_LED ||
         i == DISABLE_UMD ||
         i == WPA2_SUPPORT ||
-        i == UMD_REGION
+        i == UMD_REGION ||
+        i == GO_PAUSE_DELETE
     );
     else if (psp_model == PSP_1000) return (
         i == USB_CHARGE ||

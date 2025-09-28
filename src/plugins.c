@@ -30,6 +30,25 @@ char* plugins_paths[] = {
     ark_config.arkpath
 };
 
+char* plugin_blacklist[] = {
+    "popscore.prx",
+    IDSREG_PRX,
+    INTRAFONT_PRX,
+    LIBPNG_PRX,
+    "MEDIASYN.PRX",
+    "POPS.PRX",
+    "POPSMAN.PRX",
+    PS1SPU_PRX,
+    PSPAV_PRX,
+    PSPFTP_PRX,
+    RECOVERY_PRX,
+    UNARCHIVE_PRX,
+    USBDEV_PRX,
+    VLF_PRX,
+    VSH_MENU,
+    XMBCTRL_PRX,
+};
+
 static void list_cleaner(void* item){
     Plugin* plugin = (Plugin*)item;
     sce_paf_private_free(plugin->path);
@@ -180,6 +199,15 @@ int isPluginInstalled(char* plugin_path, char* plugin_name){
     return 0;
 }
 
+int isPluginBlacklisted(char* plugin_name){
+    for (int i=0; i<NELEMS(plugin_blacklist); i++){
+        if (strcasecmp(plugin_name, plugin_blacklist[i]) == 0){
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void findInstallablePluginsSubfolder(int place, char* subfolder){
     char fullpath[128];
     sce_paf_private_strcpy(fullpath, plugins_paths[place]);
@@ -192,7 +220,11 @@ static void findInstallablePluginsSubfolder(int place, char* subfolder){
     while ((sceIoDread(dir, &dit)) > 0){
         if (dit.d_name[0] == '.') continue;
         char* ext = sce_paf_private_strrchr(dit.d_name, '.');
-        if (ext && strcasecmp(ext, ".prx") == 0 && !isPluginInstalled(plugins_paths[place], dit.d_name)){
+        if (    ext &&
+                strcasecmp(ext, ".prx") == 0 &&
+                !isPluginBlacklisted(dit.d_name) &&
+                !isPluginInstalled(plugins_paths[place], dit.d_name)
+            ){
             char plugin_name[64];
             sce_paf_private_sprintf(plugin_name, "%s/%s", subfolder, dit.d_name);
             processInstallablePlugin(plugin_name, place);
@@ -216,7 +248,11 @@ void findInstallablePlugins(){
                 continue;
             }
             char* ext = sce_paf_private_strrchr(dit.d_name, '.');
-            if (ext && strcasecmp(ext, ".prx") == 0 && !isPluginInstalled(plugins_paths[i], dit.d_name)){
+            if (    ext &&
+                    strcasecmp(ext, ".prx") == 0 &&
+                    !isPluginBlacklisted(dit.d_name) &&
+                    !isPluginInstalled(plugins_paths[i], dit.d_name)
+                ){
                 processInstallablePlugin(dit.d_name, i);
             }
         }
