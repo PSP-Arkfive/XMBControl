@@ -233,9 +233,9 @@ char* plugins_options[] = {
 char* plugins_install_options[] = {
     "None",
     "Always",
-    "Game",
-    "VSH",
-    "Pops",
+    "GAME",
+    "VSH/XMB",
+    "POPS/PS1",
     "UMD/ISO",
     "Homebrew",
 };
