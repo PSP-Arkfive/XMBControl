@@ -1081,17 +1081,10 @@ SceSysconfItem *GetSysconfItemPatched(void *a0, void *a1)
     return item;
 }
 
-void logtext(char* text){
-    int fd = sceIoOpen("ms0:/gettext.log", PSP_O_WRONLY|PSP_O_CREAT|PSP_O_APPEND, 0777);
-    sceIoWrite(fd, text, strlen(text));
-    sceIoClose(fd);
-}
-
 wchar_t *scePafGetTextPatched(void *a0, char *name)
 {
     if(name)
     {
-        logtext(name); logtext("\n");
         if(is_cfw_config == 1 || sce_paf_private_strncmp(name, "xmbmsg", 6)==0)
         {
             char* translated = findTranslation(name);
