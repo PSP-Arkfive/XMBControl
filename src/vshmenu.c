@@ -19,7 +19,6 @@ extern int psp_model;
 extern ARKConfig ark_config;
 
 struct {
-    SceCtrlData ctrl_pad;
     u32 cur_buttons;
     u32 button_on;
     int stop_flag;
@@ -53,15 +52,10 @@ int (*scePafAddClockOrig)(ScePspDateTime*, wchar_t*, int, wchar_t*) = NULL;
 
 int EatKey(SceCtrlData *pad_data, int count)
 {
-    u32 buttons;
-
-    // copy true value
-    memcpy(&vshmenu.ctrl_pad, pad_data, sizeof(SceCtrlData));
 
     // buttons check
-    buttons             = vshmenu.ctrl_pad.Buttons;
-    vshmenu.button_on   = ~vshmenu.cur_buttons & buttons;
-    vshmenu.cur_buttons = buttons;
+    vshmenu.button_on   = ~vshmenu.cur_buttons & pad_data[0].Buttons;
+    vshmenu.cur_buttons = pad_data[0].Buttons;
 
     // mask buttons for LOCK VSH control
     for (int i=0; i<count; i++) {
