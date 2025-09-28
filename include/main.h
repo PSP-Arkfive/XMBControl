@@ -22,6 +22,9 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
+#define STAR "★"
+#define WSTAR L"★"
+
 #define sysconf_console_id 4
 #define sysconf_console_action 2
 #define sysconf_console_action_arg 2
@@ -122,6 +125,7 @@ typedef struct
 
 int sce_paf_private_wcslen(wchar_t *);
 int sce_paf_private_wcscpy(wchar_t* str1, wchar_t* str2);
+int sce_paf_private_wcsprintf(wchar_t* string, int len, wchar_t* buf, ...);
 int sce_paf_private_sprintf(char *, const char *, ...);
 void *sce_paf_private_memcpy(void *, void *, int);
 void *sce_paf_private_memset(void *, char, int);

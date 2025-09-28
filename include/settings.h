@@ -5,8 +5,6 @@
 #define LINE_TOKEN_DELIMITER ','
 #define MAX_LANG_STRINGS 128
 
-#define STAR "★"
-
 enum{
     DISABLED,
     ALWAYS_ON,
