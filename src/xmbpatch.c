@@ -402,20 +402,6 @@ void exec_custom_launcher() {
         param.key = "game";
         sctrlKernelLoadExecVSHWithApitype(0x141, menupath, &param);
     }
-    else{
-        // reboot system in proshell mode
-        ark_config.recovery = 0;
-        strcpy(ark_config.launcher, "PROSHELL"); // reboot in proshell mode
-
-        struct KernelCallArg args;
-        args.arg1 = (u32)&ark_config;
-        u32 setArkConfig = sctrlHENFindFunction("SystemControl", "SystemCtrlPrivate", 0x6EAFC03D);    
-        kuKernelCall((void*)setArkConfig, &args);
-
-        sctrlSESetUmdFile("");
-        sctrlSESetBootConfFileIndex(MODE_UMD);
-        sctrlKernelExitVSH(NULL);
-    }
 }
 
 void exec_150_reboot(void) {
