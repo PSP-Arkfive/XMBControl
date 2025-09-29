@@ -132,14 +132,16 @@ void patchVshClock(u32 addr){
         }
     }
 
-    sce_paf_private_sprintf(info_string, "\n\n\n"
+    sce_paf_private_sprintf(info_string, "\n\n\n\n"
         "CFW: ARK %d.%d.%d r%d\n"
         "Built: %s %s\n"
-        "Console: %s FW%d%d%d",
+        "Console: %s FW%d%d%d\n"
+        "Bootloader: %s",
         ARK_MAJOR_VERSION, ARK_MINOR_VERSION,
         ARK_MICRO_VERSION, ARK_REVISION,
         __DATE__, __TIME__,
-        console_type, major, minor, micro
+        console_type, major, minor, micro,
+        ark_config.exploit_id
     );
 
     scePafAddClockOrig = (void*)U_EXTRACT_CALL(addr + 4);
