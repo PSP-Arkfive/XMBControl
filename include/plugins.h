@@ -22,8 +22,9 @@ enum{
 
 typedef struct{
     char* name;
-    char* path;
     char* surname;
+    char* path;
+    char* runlevel;
     int active;
     int place;
 } Plugin;

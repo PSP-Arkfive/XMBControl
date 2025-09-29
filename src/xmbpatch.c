@@ -1177,10 +1177,10 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
                 Plugin* plugin = (Plugin*)(plugins.table[i]);
                 char plugin_path[128];
                 if (sce_paf_private_strchr(plugin->path, ':') == NULL){
-                    sce_paf_private_sprintf(plugin_path, "<%s> %s", plugins_paths[plugin->place], plugin->path);
+                    sce_paf_private_sprintf(plugin_path, "<%s> %s, %s", plugins_paths[plugin->place], plugin->runlevel, plugin->path);
                 }
                 else{
-                    strcpy(plugin_path, plugin->path);
+                    sce_paf_private_sprintf(plugin_path, "%s, %s", plugin->runlevel, plugin->path);
                 }
                 utf8_to_unicode((wchar_t *)user_buffer, plugin_path);
         		return (wchar_t *)user_buffer;

@@ -54,33 +54,36 @@ static void list_cleaner(void* item){
     sce_paf_private_free(plugin->path);
     if (plugin->name) sce_paf_private_free(plugin->name);
     if (plugin->surname) sce_paf_private_free(plugin->surname);
+    if (plugin->path) sce_paf_private_free(plugin->path);
+    if (plugin->runlevel) sce_paf_private_free(plugin->runlevel);
     sce_paf_private_free(plugin);
 }
 
 static void processCustomLine(char* line){
     Plugin* plugin = (Plugin*)sce_paf_private_malloc(sizeof(Plugin));
-    memset(plugin, 0, sizeof(Plugin));
+    sce_paf_private_memset(plugin, 0, sizeof(Plugin));
     plugin->path = line;
     plugin->place = cur_place;
     add_list(&plugins, plugin);
 }
 
 static int processPlugin(char* runlevel, char* path, char* enabled){
-    int n = plugins.count;
-    char* name = sce_paf_private_malloc(20);
-    sprintf(name, "plugin_%d", n);
-
-    char* surname = sce_paf_private_malloc(20);
-    sprintf(surname, "plugins%d", n);
-
-    int path_len = strlen(runlevel) + strlen(path) + 10;
-    char* full_path = (char*)sce_paf_private_malloc(path_len);
-    sprintf(full_path, "%s, %s", runlevel, path);
-
     Plugin* plugin = (Plugin*)sce_paf_private_malloc(sizeof(Plugin));
-    plugin->name = name;
-    plugin->surname = surname;
-    plugin->path = full_path;
+    sce_paf_private_memset(plugin, 0, sizeof(Plugin));
+
+    int n = plugins.count;
+    plugin->name = sce_paf_private_malloc(20);
+    sce_paf_private_sprintf(plugin->name, "plugin_%d", n);
+
+    plugin->surname = sce_paf_private_malloc(20);
+    sce_paf_private_sprintf(plugin->surname, "plugins%d", n);
+
+    plugin->path = sce_paf_private_malloc(strlen(path) + 1);
+    sce_paf_private_strcpy(plugin->path, path);
+
+    plugin->runlevel = sce_paf_private_malloc(strlen(runlevel) + 1);
+    sce_paf_private_strcpy(plugin->runlevel, runlevel);
+
     plugin->place = cur_place;
     plugin->active = isRunlevelEnabled(enabled);
 
@@ -193,7 +196,7 @@ int isPluginInstalled(char* plugin_path, char* plugin_name){
                 strcasecmp(getPluginName(plugin_name, file1), getPluginName(plugin->path, file2)) == 0 && // same name
                 strcasecmp(plugin_path, plugins_paths[plugin->place]) == 0) // same path
         {
-            return 1;
+            return (runlevelConvert(plugin->runlevel, "on") != CUSTOM); //1;
         }
     }
     return 0;
