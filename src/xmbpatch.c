@@ -1197,6 +1197,11 @@ wchar_t *scePafGetTextPatched(void *a0, char *name)
                 utf8_to_unicode((wchar_t *)user_buffer, plugins_paths[plugin->place]);
         		return (wchar_t *)user_buffer;
             }
+            else if (sce_paf_private_strcmp(name, "Import Classic Plugins") == 0){
+                char* translated = findTranslation(name);
+                utf8_to_unicode((wchar_t *)user_buffer, (translated)? translated:name);
+                return (wchar_t *)user_buffer;
+            }
             else {
                 char* translated = findTranslation(name);
                 if (translated){
