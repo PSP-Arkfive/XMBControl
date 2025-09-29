@@ -121,7 +121,7 @@ void patchVshClock(u32 addr){
                     case 0: console_type = "PSP Phat"; break;
                     case 1: console_type = "PSP Lite"; break;
                     case 2: case 3: case 6:
-                    case 8: console_type = "PSP Bright"; break;
+                    case 8: console_type = "PSP Brite"; break;
                     case 4: console_type = "PSP Go"; break;
                     case 10: console_type = "PSP Street"; break;
                     
