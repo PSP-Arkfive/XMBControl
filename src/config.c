@@ -324,6 +324,4 @@ void saveSettings(){
     sceIoClose(fd);
 
     free(line);
-
-    //clear_list(&custom_config);
 }

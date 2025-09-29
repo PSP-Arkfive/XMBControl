@@ -39,12 +39,6 @@ int module_start(SceSize args, void *argp)
     kargs.arg1 = (u32)&rebootex_config;
     kuKernelCall(getRebootexConfig, &kargs);
 
-    /*{
-        int fd = sceIoOpen("ms0:/last_played.bin", PSP_O_WRONLY|PSP_O_CREAT|PSP_O_TRUNC, 0777);
-        sceIoWrite(fd, &rebootex_config.last_played, sizeof(rebootex_config.last_played));
-        sceIoClose(fd);
-    }*/
-
     psp_model = kuKernelGetModel();
 
     sctrlSEGetConfig(&se_config);
