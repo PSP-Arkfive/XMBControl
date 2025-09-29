@@ -11,6 +11,7 @@
 #include <vshctrl.h>
 #include <systemctrl.h>
 #include <systemctrl_se.h>
+#include <rebootconfig.h>
 
 #include "main.h"
 #include "utils.h"
@@ -23,6 +24,7 @@ PSP_MODULE_INFO("XmbControl", 0x0007, 1, 5);
 extern int psp_model;
 extern ARKConfig ark_config;
 extern SEConfig se_config;
+extern RebootConfigARK rebootex_config;
 extern STMOD_HANDLER previous;
 
 extern void findAllTranslatableStrings();
@@ -30,6 +32,18 @@ extern int OnModuleStart(SceModule *mod);
 
 int module_start(SceSize args, void *argp)
 {
+
+    RebootConfigARK* (*getRebootexConfig)(RebootConfigARK*) = 
+        (void*)sctrlHENFindFunction("SystemControl", "SystemCtrlForKernel", 0x18B687A6);
+    struct KernelCallArg kargs;
+    kargs.arg1 = (u32)&rebootex_config;
+    kuKernelCall(getRebootexConfig, &kargs);
+
+    /*{
+        int fd = sceIoOpen("ms0:/last_played.bin", PSP_O_WRONLY|PSP_O_CREAT|PSP_O_TRUNC, 0777);
+        sceIoWrite(fd, &rebootex_config.last_played, sizeof(rebootex_config.last_played));
+        sceIoClose(fd);
+    }*/
 
     psp_model = kuKernelGetModel();
 

@@ -35,7 +35,7 @@ extern List iplugins;
 
 void loadPlugins();
 void savePlugins();
-void installPlugin(Plugin* plugin);
+void installPlugin(Plugin* plugin, char* opt);
 void findInstallablePlugins();
 char* getPluginName(char* plugin_path, char* file);
 

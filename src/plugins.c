@@ -261,7 +261,7 @@ void findInstallablePlugins(){
     }
 }
 
-void installPlugin(Plugin* plugin){
+void installPlugin(Plugin* plugin, char* opt){
 
     static char* runlevels[] = {
         "none",
@@ -272,6 +272,7 @@ void installPlugin(Plugin* plugin){
         "psp",
         "homebrew",
     };
+    if (opt == NULL) opt = runlevels[plugin->active];
 
     char txtpath[128];
     sce_paf_private_strcpy(txtpath, plugins_paths[plugin->place]);
@@ -279,7 +280,7 @@ void installPlugin(Plugin* plugin){
 
     SceUID fd = sceIoOpen(txtpath, PSP_O_WRONLY|PSP_O_CREAT|PSP_O_APPEND, 0777);
     sceIoWrite(fd, "\n", 1);
-    sceIoWrite(fd, runlevels[plugin->active], strlen(runlevels[plugin->active]));
+    sceIoWrite(fd, opt, strlen(opt));
     sceIoWrite(fd, ", ", 2);
     sceIoWrite(fd, plugins_paths[plugin->place], strlen(plugins_paths[plugin->place]));
     sceIoWrite(fd, plugin->path, strlen(plugin->path));

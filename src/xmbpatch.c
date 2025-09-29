@@ -33,6 +33,7 @@
 #include <vshctrl.h>
 #include <systemctrl.h>
 #include <systemctrl_se.h>
+#include <rebootconfig.h>
 
 #include "main.h"
 #include "utils.h"
@@ -41,8 +42,10 @@
 #include "plugins.h"
 #include "battery.h"
 
+#define PSP_INIT_APITYPE_EF2 0x152
 
 ARKConfig ark_config;
+RebootConfigARK rebootex_config;
 extern List plugins;
 
 STMOD_HANDLER previous = NULL;
@@ -238,6 +241,7 @@ char* plugins_install_options[] = {
     "POPS/PS1",
     "UMD/ISO",
     "Homebrew",
+    NULL, // Last Played Game
 };
 
 
@@ -358,6 +362,29 @@ void ClearCaches()
 {
     sceKernelDcacheWritebackAll();
     kuKernelIcacheInvalidateAll();
+}
+
+char* getLastGameForPlugin(){
+    char* opt = NULL;
+    int apitype = rebootex_config.last_played.apitype;
+    if (apitype == PSP_INIT_APITYPE_MS2 || apitype == PSP_INIT_APITYPE_EF2){ // homebrew
+        if (rebootex_config.last_played.path[0]){
+            opt = rebootex_config.last_played.path;
+        }
+    }
+    else if (rebootex_config.last_played.game_id[0]){
+        opt = rebootex_config.last_played.game_id;
+    }
+    return opt;
+}
+
+char* getLastGameForPluginFormatted(){
+    char* opt = getLastGameForPlugin();
+    if (opt){
+        char* hbn = sce_paf_private_strrchr(opt, '/');
+        if (hbn) opt = hbn;
+    }
+    return opt;
 }
 
 void exec_custom_launcher() {
@@ -1067,6 +1094,13 @@ void OnInitMenuPspConfigPatched()
                     AddSysconfContextItem(plugin->name, plugin->surname, plugin->name);
                 }
             }
+            char* last_played = getLastGameForPluginFormatted();
+            if (last_played){
+                plugins_install_options[NELEMS(plugins_install_options)-1] = last_played;
+            }
+            else {
+                item_opts[PLUGINS_CONTEXT+1].n--;
+            }
         }
     }
     else
@@ -1401,7 +1435,11 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
         		context_mode = PLUGINS_CONTEXT+1;
         		plugin->active = *value;
                 if (*value > 0){
-                    installPlugin(plugin);
+                    char* opt = NULL;
+                    if (*value == NELEMS(plugins_install_options)-1){
+                        opt = getLastGameForPlugin();
+                    }
+                    installPlugin(plugin, opt);
                     sctrlKernelExitVSH(NULL);
                 }
         		return 0;
@@ -1671,6 +1709,7 @@ void PatchSysconfPlugin(u32 text_addr, u32 text_size)
 
 int OnModuleStart(SceModule *mod)
 {
+
     char *modname = mod->modname;
     u32 text_addr = mod->text_addr;
     u32 text_size = mod->text_size;
