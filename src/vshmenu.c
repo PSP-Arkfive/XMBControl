@@ -156,9 +156,6 @@ int TSRThread(SceSize args, void *argp)
 
         button_func();
     }
-
-    vshmenu.menu_mode = 2;
-    sceKernelDelayThread(1000000); // let "Bye" message be seen for a second
     vshmenu.is_registered = 0;
 
 	vctrlVSHExitVSHMenu(NULL, NULL, 0);
