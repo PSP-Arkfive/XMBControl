@@ -68,10 +68,11 @@ static void processCustomLine(char* line){
 }
 
 static int processPlugin(char* runlevel, char* path, char* enabled){
+    
+    int n = plugins.count;
     Plugin* plugin = (Plugin*)sce_paf_private_malloc(sizeof(Plugin));
     sce_paf_private_memset(plugin, 0, sizeof(Plugin));
 
-    int n = plugins.count;
     plugin->name = sce_paf_private_malloc(20);
     sce_paf_private_sprintf(plugin->name, "plugin_%d", n);
 
@@ -93,22 +94,21 @@ static int processPlugin(char* runlevel, char* path, char* enabled){
 }
 
 static int processInstallablePlugin(char* plugin_name, int place){
+
     int n = iplugins.count;
-    char* name = sce_paf_private_malloc(20);
-    sprintf(name, "iplugin_%d", n);
+    Plugin* plugin = sce_paf_private_malloc(sizeof(Plugin));
+    sce_paf_private_memset(plugin, 0, sizeof(Plugin));
 
-    char* surname = sce_paf_private_malloc(20);
-    sprintf(surname, "iplugins%d", n);
+    plugin->name = sce_paf_private_malloc(20);
+    sprintf(plugin->name, "iplugin_%d", n);
 
-    char* path = (char*)sce_paf_private_malloc(sce_paf_private_strlen(plugin_name)+1);
-    sce_paf_private_strcpy(path, plugin_name);
+    plugin->surname = sce_paf_private_malloc(20);
+    sprintf(plugin->surname, "iplugins%d", n);
 
-    Plugin* plugin = (Plugin*)sce_paf_private_malloc(sizeof(Plugin));
-    plugin->name = name;
-    plugin->surname = surname;
-    plugin->path = path;
+    plugin->path = sce_paf_private_malloc(sce_paf_private_strlen(plugin_name)+1);
+    sce_paf_private_strcpy(plugin->path, plugin_name);
+
     plugin->place = place;
-    plugin->active = 0;
 
     add_list(&iplugins, plugin);
 
