@@ -40,6 +40,7 @@ enum {
 typedef struct
 {
     u32 magic;
+    u8 sysopt;
     u8 usbdevice;
     u8 usbreadonly;
     u8 usbcharge;

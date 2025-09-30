@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <pspsdk.h>
 #include <pspkernel.h>
+#include <psppower.h>
 #include <psputility_sysparam.h>
 
 #include <ark.h>
@@ -71,6 +72,7 @@ const char* POPS_PLUGIN_PATH = "ms0:/SEPLUGINS/POPS.TXT";
 
 
 enum{
+    SYSTEM_OPTIONS,
     ACTIVATE_CODECS,
     USB_DEVICE,
     USB_READONLY,
@@ -101,6 +103,13 @@ enum{
     RESET_SETTINGS,
 };
 
+enum {
+    SOFT_RESET = 1,
+    HARD_RESET,
+    SUSPEND_DEVICE,
+    SHUTDOWN_DEVICE,
+};
+
 #define PLUGINS_CONTEXT 2
 
 typedef struct
@@ -112,6 +121,7 @@ typedef struct
 
 GetItem GetItemes[] =
 {
+    { SYSTEM_OPTIONS      +PLUGINS_CONTEXT+2, 0, "System Options" },
     { ACTIVATE_CODECS     +PLUGINS_CONTEXT+2, 0, "Activate Flash and WMA Codecs" },
     { USB_DEVICE          +PLUGINS_CONTEXT+2, 0, "USB Device" },
     { USB_READONLY        +PLUGINS_CONTEXT+2, 0, "USB Read-Only" },
@@ -140,6 +150,14 @@ GetItem GetItemes[] =
     { QA_FLAGS            +PLUGINS_CONTEXT+2, 0, "QA Flags" },
     { GO_PAUSE_DELETE     +PLUGINS_CONTEXT+2, 0, "Delete PSP Go Pause" },
     { RESET_SETTINGS      +PLUGINS_CONTEXT+2, 0, "Reset Settings" },
+};
+
+char* system_opts[] = {
+    "Cancel",
+    "Soft Reset",
+    "Hard Reset",
+    "Suspend",
+    "Shutdown",
 };
 
 char* boolean_settings[] = {
@@ -254,6 +272,7 @@ struct {
     ITEM_OPT(classic_plugins_opts), // Import Plugins
     ITEM_OPT(plugins_options), // Plugins
     ITEM_OPT(plugins_install_options), // Plugins Install
+    ITEM_OPT(system_opts), // System Options
     ITEM_OPT(boolean_settings4), // Activate Codecs
     ITEM_OPT(usbdev_settings), // USB Device
     ITEM_OPT(boolean_settings3), // USB Read-Only
@@ -1235,6 +1254,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 
             u8 configs[] =
             {
+                config.sysopt,
                 config.activate_codecs,
                 config.usbdevice,
                 config.usbreadonly,
@@ -1315,6 +1335,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
         {
             static u8 *configs[] =
             {
+                &config.sysopt,
                 &config.activate_codecs,
                 &config.usbdevice,
                 &config.usbreadonly,
@@ -1352,7 +1373,15 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     *configs[i] = GetItemes[i].negative ? !(*value) : *value;
                     saveSettings();
                     
-                    if (i == UMD_REGION && config.umdregion){
+                    if (i == SYSTEM_OPTIONS){
+                        switch (*value){
+                            case SOFT_RESET:         sctrlKernelExitVSH(NULL); break;
+                            case HARD_RESET:         scePowerRequestSuspend(); break;
+                            case SUSPEND_DEVICE:     scePowerRequestSuspend(); break;
+                            case SHUTDOWN_DEVICE:    scePowerRequestStandby(); break;
+                        }
+                    }
+                    else if (i == UMD_REGION && config.umdregion){
                         recreate_umd_keys();
                     }
                     else if (i == USB_DEVICE || i == USB_READONLY){
@@ -1382,19 +1411,6 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                             reset_ark_settings();
                             sctrlKernelExitVSH(NULL);
                         }
-                    }
-                    else if (
-                            i == WPA2_SUPPORT ||
-                            i == VSH_REGION   ||
-                            i == SKIP_LOGOS   ||
-                            i == HIDE_PICS    ||
-                            i == HIDE_MAC     ||
-                            i == HIDE_DLC     ||
-                            i == DISABLE_LED  ||
-                            i == DISABLE_UMD  ||
-                            i == QA_FLAGS     
-                        ){
-                        sctrlKernelExitVSH(NULL);
                     }
                     return 0;
                 }

@@ -24,27 +24,8 @@ struct {
     int stop_flag;
     int menu_mode;
     int is_registered;
-    int cur_idx;
     int show_info;
 } vshmenu;
-
-char* menu_opts[] = {
-    "Information",
-    "Soft Reset",
-    "Hard Reset",
-    "Suspend",
-    "Shutdown",
-    "Exit",
-};
-
-enum {
-    SHOW_INFORMATION,
-    SOFT_RESET,
-    HARD_RESET,
-    SUSPEND_DEVICE,
-    SHUTDOWN_DEVICE,
-    EXIT_MENU
-};
 
 char info_string[128];
 
@@ -73,27 +54,7 @@ int EatKey(SceCtrlData *pad_data, int count)
 
 int scePafAddClockPatched(ScePspDateTime* time, wchar_t* str, int max_len, wchar_t* format) {
     if (vshmenu.is_registered){
-        if (vshmenu.menu_mode == 2){
-            return utf8_to_unicode(str, "Bye!");
-        }
-        else if (vshmenu.show_info){
-            return utf8_to_unicode(str, info_string);
-        }
-        else {
-            char* tmp = sce_paf_private_malloc(512);
-            sce_paf_private_sprintf(tmp, "\n\n\n\n\n\n\n %s%s\n %s%s\n %s%s\n %s%s\n %s%s\n %s%s\n",
-                (vshmenu.cur_idx==0)? STAR:" ", menu_opts[0],
-                (vshmenu.cur_idx==1)? STAR:" ", menu_opts[1],
-                (vshmenu.cur_idx==2)? STAR:" ", menu_opts[2],
-                (vshmenu.cur_idx==3)? STAR:" ", menu_opts[3],
-                (vshmenu.cur_idx==4)? STAR:" ", menu_opts[4],
-                (vshmenu.cur_idx==5)? STAR:" ", menu_opts[5]
-
-            );
-            int res = utf8_to_unicode(str, tmp);
-            sce_paf_private_free(tmp);
-            return res;
-        }
+        return utf8_to_unicode(str, info_string);
     }
     else {
         return scePafAddClockOrig(time, str, max_len, format);
@@ -146,7 +107,7 @@ void patchVshClock(u32 addr){
 
     scePafAddClockOrig = (void*)U_EXTRACT_CALL(addr + 4);
 
-    _sh((u16)-4, addr - 0x48);
+    _sh(0, addr - 0x48);
     MAKE_CALL(addr + 4, (u32)&scePafAddClockPatched);
 
     sceKernelDcacheWritebackAll();
@@ -159,32 +120,6 @@ int menu_ctrl(u32 button_on)
     if ((button_on & PSP_CTRL_SELECT) || (button_on & PSP_CTRL_HOME)) {
         return 1;
     }
-    if (!vshmenu.show_info){
-        if (button_on & PSP_CTRL_DOWN) {
-            if (vshmenu.cur_idx < NELEMS(menu_opts)-1){
-                vshmenu.cur_idx++;
-            }
-        }
-        else if (button_on & PSP_CTRL_UP) {
-            if (vshmenu.cur_idx > 0){
-                vshmenu.cur_idx--;
-            }
-        }
-        else if ((button_on & PSP_CTRL_CROSS) || (button_on & PSP_CTRL_CIRCLE)) {
-            switch (vshmenu.cur_idx){
-                case SHOW_INFORMATION:   vshmenu.show_info = 1;    break;
-                case SOFT_RESET:         sctrlKernelExitVSH(NULL); return 1;
-                case HARD_RESET:         scePowerRequestSuspend(); return 1;
-                case SUSPEND_DEVICE:     scePowerRequestSuspend(); return 1;
-                case SHUTDOWN_DEVICE:    scePowerRequestStandby(); return 1;
-                case EXIT_MENU:                                    return 1;
-            }
-        }
-    }
-    else if ((button_on & PSP_CTRL_CROSS) || (button_on & PSP_CTRL_CIRCLE)) {
-        vshmenu.show_info = 0;
-    }
-
     return 0; // continue
 }
 
