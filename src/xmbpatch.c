@@ -43,7 +43,9 @@
 #include "plugins.h"
 #include "battery.h"
 
+// TODO: send to pspsdk
 #define PSP_INIT_APITYPE_EF2 0x152
+extern int scePowerRequestColdReset(int unk);
 
 ARKConfig ark_config;
 RebootConfigARK rebootex_config;
@@ -158,6 +160,12 @@ char* system_opts[] = {
     "Hard Reset",
     "Suspend",
     "Shutdown",
+};
+
+char* system_opts_vita[] = {
+    "Cancel",
+    "Soft Reset",
+    "Suspend",
 };
 
 char* boolean_settings[] = {
@@ -1066,6 +1074,12 @@ void OnInitMenuPspConfigPatched()
             if (n_usbdev == item_opts[USB_DEVICE+PLUGINS_CONTEXT+2].n)
                 item_opts[USB_DEVICE+PLUGINS_CONTEXT+2].n--;
             
+            // remove Shutdown option from PS Vita
+            if (IS_VITA((&ark_config))){
+                item_opts[SYSTEM_OPTIONS+PLUGINS_CONTEXT+2].n = NELEMS(system_opts_vita);
+                item_opts[SYSTEM_OPTIONS+PLUGINS_CONTEXT+2].c = system_opts_vita;
+            }
+            
             loadSettings();
             int i;
             for(i = 0; i < NELEMS(GetItemes); i++)
@@ -1374,11 +1388,19 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     saveSettings();
                     
                     if (i == SYSTEM_OPTIONS){
-                        switch (*value){
-                            case SOFT_RESET:         sctrlKernelExitVSH(NULL); break;
-                            case HARD_RESET:         scePowerRequestSuspend(); break;
-                            case SUSPEND_DEVICE:     scePowerRequestSuspend(); break;
-                            case SHUTDOWN_DEVICE:    scePowerRequestStandby(); break;
+                        if (IS_VITA((&ark_config))){
+                            switch (*value){
+                                case SOFT_RESET:         sctrlKernelExitVSH(NULL); break;
+                                case HARD_RESET:         scePowerRequestSuspend(); break;
+                            }
+                        }
+                        else {
+                            switch (*value){
+                                case SOFT_RESET:         sctrlKernelExitVSH(NULL); break;
+                                case HARD_RESET:         scePowerRequestColdReset(0); break;
+                                case SUSPEND_DEVICE:     scePowerRequestSuspend(); break;
+                                case SHUTDOWN_DEVICE:    scePowerRequestStandby(); break;
+                            }
                         }
                     }
                     else if (i == UMD_REGION && config.umdregion){
