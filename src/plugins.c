@@ -50,8 +50,8 @@ char* plugin_blacklist[] = {
 };
 
 void plugin_list_cleaner(void* item){
+    if (item == NULL) return;
     Plugin* plugin = (Plugin*)item;
-    sce_paf_private_free(plugin->path);
     if (plugin->name) sce_paf_private_free(plugin->name);
     if (plugin->surname) sce_paf_private_free(plugin->surname);
     if (plugin->path) sce_paf_private_free(plugin->path);
