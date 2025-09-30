@@ -27,6 +27,7 @@ struct {
     int show_info;
 } vshmenu;
 
+u32 patch_addr;
 char info_string[128];
 
 int (*scePafAddClockOrig)(ScePspDateTime*, wchar_t*, int, wchar_t*) = NULL;
@@ -105,10 +106,8 @@ void patchVshClock(u32 addr){
         ark_config.exploit_id
     );
 
-    scePafAddClockOrig = (void*)U_EXTRACT_CALL(addr + 4);
-
     _sh(0, addr - 0x48);
-    MAKE_CALL(addr + 4, (u32)&scePafAddClockPatched);
+    patch_addr = addr;
 
     sceKernelDcacheWritebackAll();
     kuKernelIcacheInvalidateAll();
@@ -166,6 +165,13 @@ int xmbctrlEnterVshMenuMode(){
 
     memset(&vshmenu, 0, sizeof(vshmenu));
     vshmenu.cur_buttons = 0xFFFFFFFF;
+
+    if (scePafAddClockOrig == NULL){
+        scePafAddClockOrig = (void*)U_EXTRACT_CALL(patch_addr + 4);
+        MAKE_CALL(patch_addr + 4, (u32)&scePafAddClockPatched);
+        sceKernelDcacheWritebackAll();
+        kuKernelIcacheInvalidateAll();
+    }
 
     SceUID thread_id = sceKernelCreateThread("VshMenu_Thread", (void*)KERNELIFY(TSRThread), 16 , 0x1000 , 0 , 0);
     return sceKernelStartThread(thread_id, 0, 0);
