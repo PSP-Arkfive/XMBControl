@@ -39,5 +39,6 @@ void savePlugins();
 void installPlugin(Plugin* plugin, char* opt);
 void findInstallablePlugins();
 char* getPluginName(char* plugin_path, char* file);
+void plugin_list_cleaner(void* item);
 
 #endif

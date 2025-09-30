@@ -49,7 +49,7 @@ char* plugin_blacklist[] = {
     XMBCTRL_PRX,
 };
 
-static void list_cleaner(void* item){
+void plugin_list_cleaner(void* item){
     Plugin* plugin = (Plugin*)item;
     sce_paf_private_free(plugin->path);
     if (plugin->name) sce_paf_private_free(plugin->name);
@@ -116,7 +116,7 @@ static int processInstallablePlugin(char* plugin_name, int place){
 }
 
 void loadPlugins(){
-    clear_list(&plugins, &list_cleaner);
+    clear_list(&plugins, &plugin_list_cleaner);
 
     char path[ARK_PATH_SIZE];
     strcpy(path, ark_config.arkpath);
@@ -238,7 +238,7 @@ static void findInstallablePluginsSubfolder(int place, char* subfolder){
 }
 
 void findInstallablePlugins(){
-    clear_list(&iplugins, &list_cleaner);
+    clear_list(&iplugins, &plugin_list_cleaner);
     for (int i=0; i<NELEMS(plugins_paths)-1; i++){
         SceUID dir = sceIoDopen(plugins_paths[i]);
         SceIoDirent dit;
