@@ -1,6 +1,4 @@
 PSPSDK = $(shell psp-config --pspsdk-path)
-ARKSDK ?= ../ark-dev-sdk
-
 
 TARGET = xmbctrl
 OBJS = main.o stub.o \
@@ -20,8 +18,8 @@ ASFLAGS = $(CFLAGS)
 BUILD_PRX = 1
 PRX_EXPORTS = exports.exp
 
-INCDIR = include $(ARKSDK)/include
-LIBDIR = $(ARKSDK)/libs
+INCDIR = include
+LIBDIR =
 
 USE_PSPSDK_LIBS = 1
 USE_PSPSDK_LIBC = 1
