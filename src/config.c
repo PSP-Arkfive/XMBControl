@@ -23,7 +23,7 @@ enum{
 
 extern CFWConfig config;
 extern ARKConfig ark_config;
-extern SEConfig se_config;
+extern SEConfigARK se_config;
 
 List custom_config;
 

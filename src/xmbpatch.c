@@ -55,7 +55,7 @@ STMOD_HANDLER previous = NULL;
 CFWConfig config;
 
 int psp_model;
-SEConfig se_config;
+SEConfigARK se_config;
 int codecs_active = 0;
 int battery_type = -1;
 int has_hibernation = 0;
@@ -455,9 +455,9 @@ void recreate_umd_keys(void) {
     struct KernelCallArg args;
     sce_paf_private_memset(&args, 0, sizeof(args));
 
-    sctrlSEGetConfig(&se_config);
+    sctrlSEGetConfig((SEConfig*)&se_config);
     se_config.umdregion = config.umdregion;
-    sctrlSESetConfig(&se_config);
+    sctrlSESetConfig((SEConfig*)&se_config);
     
     void* generate_umd_keys = (void*)sctrlHENFindFunction("ARKCompatLayer", "PSPCompat", 0x2EE76C36);
     if (!generate_umd_keys) return;
@@ -1409,7 +1409,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size, int *value)
                     else if (i == USB_DEVICE || i == USB_READONLY){
                         se_config.usbdevice = config.usbdevice;
                         se_config.usbdevice_rdonly = config.usbreadonly;
-                        sctrlSESetConfig(&se_config);
+                        sctrlSESetConfig((SEConfig*)&se_config);
                     }
                     else if (i == CONFIRM_BUTTON){
                         u32 value = config.confirmbtn;
