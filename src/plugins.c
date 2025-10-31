@@ -173,12 +173,17 @@ void savePlugins(){
     for (int i=0; i<plugins.count; i++){
         Plugin* plugin = (Plugin*)(plugins.table[i]);
         if (plugin->active == PLUGIN_REMOVED) continue;
-        sceIoWrite(fd[plugin->place], plugin->path, strlen(plugin->path));
-        if (plugin->name != NULL){
+        if (plugin->name){
             char* sep = ", ";
             char* enabled = (plugin->active)? "on" : "off";
+            sceIoWrite(fd[plugin->place], plugin->runlevel, strlen(plugin->runlevel));
+            sceIoWrite(fd[plugin->place], sep, strlen(sep));
+            sceIoWrite(fd[plugin->place], plugin->path, strlen(plugin->path));
             sceIoWrite(fd[plugin->place], sep, strlen(sep));
             sceIoWrite(fd[plugin->place], enabled, strlen(enabled));
+        }
+        else { // Custom line
+            sceIoWrite(fd[plugin->place], plugin->path, strlen(plugin->path));
         }
         sceIoWrite(fd[plugin->place], "\n", 1);
     }
