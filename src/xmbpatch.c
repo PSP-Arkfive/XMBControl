@@ -709,6 +709,7 @@ static int findTranslatableStringIndex(char* line){
     if (!txt_start) return -1;
     for (int i=0; i<n_translated; i++){
         char* item = language_strings[i].orig;
+        if (item == NULL) continue;
         if (sce_paf_private_strcmp(line, item) == 0) return i;
         char* sub = strstr(line, item);
         if (sub == NULL) continue;
