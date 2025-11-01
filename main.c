@@ -19,7 +19,7 @@
 #include "settings.h"
 #include "plugins.h"
 
-PSP_MODULE_INFO("XmbControl", 0x0007, 2, 0);
+PSP_MODULE_INFO("XmbControl", 0x0007, 2, 1);
 
 extern int psp_model;
 extern ARKConfig ark_config;
